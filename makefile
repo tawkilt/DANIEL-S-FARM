@@ -10,14 +10,11 @@ INCS=-I${SDL_INC_DIR}
 
 all: main
 
-main: main.o #jeu.o
+main: main.o
 	${CC} -o main main.o ${LIBS} ${INCS} ${FLAGS}
 
 main.o: main.c
 	${CC} -c main.c ${LIBS} ${INCS} ${FLAGS}
-
-#jeu.o: jeu.c constantes.h
-#	${CC} -c jeu.c ${LIBS} ${INCS} ${FLAGS}
 
 clean:
 	rm -f ${PROG}
