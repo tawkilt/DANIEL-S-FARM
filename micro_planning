@@ -31,3 +31,11 @@ Henzo: code: il fait apparetre une autre image avec un appui de touche et le per
 
 Rabia : Elle a fait les etapes de grandir la plante(pour tout) , les animaux (poule,vache et chat)et elle a avancer dans le compte rendu.  
 Sedra: Elle a continué de créer les sprite(monnaie, outils(version final) et elle a créé la musqiue du fond.
+
+
+le 15/3/2023
+
+Henzo:il a commencé une autre fonction pour verifier les autres actions de joueur, a calculé la différence entre les positions du joueur et celles d'une tile (qui va permettre de gagner du temps pour toutes les tiles après),
+a commenté tout le code existant et a améliorer le code (en plaçant des types enums et en rajoutant des variables dans les structures).
+
+Rabia et sedra ont fini les sprites .
