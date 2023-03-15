@@ -11,23 +11,33 @@
 #define PLANTE 3
 
 enum {BAS, GAUCHE, HAUT, DROITE};
-enum {VIDE, MUR, DANIEL};
 enum {NEW, SEMI, FULL};
+enum {NOTHING, TOOL, SEEDS};
+
+typedef enum tool_s {hoe, scythe, can} tool_t; //Tous les outils
+typedef enum seeds_s {cauliflower, melon, potato, pumpkin, tomato} seeds_t; //Tous les types de graines/plantes
 
 typedef struct player_s{
-    SDL_Rect position;
-    SDL_Surface *sPerso[PERSO];
+    SDL_Rect position; //Position du personnage sur la carte
+
+    SDL_Surface *sPerso[PERSO]; //Sprites du personnage
     SDL_Texture *tPerso[PERSO];
-    int cooldown;
+
+    int holding; //Vérifie si il tient quelque chose et qu'est-ce qu'il tient
+
+    int cooldown; //Un cooldown d'action pour ne pas pouvoir en faire à répétition
     int last_action;
-    int direction;
+
+    int direction; //Direction dans laquelle le personnage regarde
 }player_t;
 
 typedef struct plante_s{
-    SDL_Rect position;
-    SDL_Surface *sPlante[PLANTE];
+    SDL_Rect position; //Position de la plante sur la carte
+
+    SDL_Surface *sPlante[PLANTE]; //Sprites de la plante
     SDL_Texture *tPlante[PLANTE];
-    int state;
+
+    int state; //État de la plante
 }plante_t;
 
 #endif
