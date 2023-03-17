@@ -10,68 +10,233 @@
 
 //Fonction de déplacement du personnage
 
-void deplacerPers(SDL_Rect *pos, int direction){
-    switch(direction){
-        case HAUT: pos->y--;break;
-        case BAS: pos->y++;break;
-        case GAUCHE: pos->x--;break;
-        case DROITE: pos->x++;break;
+void deplacerPers(player_t * player){
+    switch(player->direction){
+        case HAUT: player->position.y--;break;
+        case BAS: player->position.y++;break;
+        case GAUCHE: player->position.x--;break;
+        case DROITE: player->position.x++;break;
+        default: break;
+    }
+}
+
+void changer_outil(player_t *player, int const direction){
+    switch(player->holding){
+        case TOOL:
+            switch(direction){
+                case HAUT: if(player->tool == can){
+                    player->tool = hoe;
+                }
+                else{
+                    player->tool++;
+                }; break;
+
+                case BAS: if(player->tool == hoe){
+                    player->tool = can;
+                }
+                else{
+                    player->tool--;
+                }; break;
+
+                default: break;
+            }; break;
+
+        case SEED:
+            switch(direction){
+                case HAUT: if(player->seed == tomato){
+                    player->seed = cauliflower;
+                }
+                else{
+                    player->seed++;
+                }; break;
+
+                case BAS: if(player->seed == cauliflower){
+                    player->seed = tomato;
+                }
+                else{
+                    player->seed--;
+                }; break;
+
+                default: break;
+            }; break;
+
         default: break;
     }
 }
 
 //Fonction qui va initialiser une plante et qui va la placer sur la terre la plus proche
 
-plante_t * planter(SDL_Renderer *render, player_t * const player, SDL_Rect const tile){
+void planter(SDL_Renderer *render, player_t * const player, tile_t * const tile, listeP_t * plantes){
     plante_t *plante = malloc(sizeof(plante_t));
 
-    for(int i = 0; i < PLANTE; i++){
+    int i;
+
+    SDL_RWops * rwop = NULL;
+
+    for(i = 0; i < PLANTE; i++){
         plante->sPlante[i] = NULL;
         plante->tPlante[i] = NULL;
     }
 
     plante->state = NEW;
 
-    SDL_RWops *rwop = SDL_RWFromFile("sprites/seeds/cauliflowers/cauliflower.png", "rb");
-    plante->sPlante[plante->state] = IMG_LoadPNG_RW(rwop);
+    switch(player->seed){
+        case cauliflower: 
+            rwop = SDL_RWFromFile("sprites/seeds/cauliflower/l1cauliflower.png", "rb");
+            plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/cauliflower/l2cauliflower.png", "rb");
+            plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/cauliflower/cauliflower.png", "rb");
+            plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/cauliflower/cauliflower.png", "rb");
+            plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+        break;
+        case melon: 
+            rwop = SDL_RWFromFile("sprites/seeds/melon/l1melon.png", "rb");
+            plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/melon/l2melon.png", "rb");
+            plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/melon/l3melon.png", "rb");
+            plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/melon/melon.png", "rb");
+            plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+        break;
+        case potato: 
+            rwop = SDL_RWFromFile("sprites/seeds/potato/l1potato.png", "rb");
+            plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/potato/l2potato.png", "rb");
+            plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/potato/l3potato.png", "rb");
+            plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/potato/potato.png", "rb");
+            plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+        break;
+        case pumpkin: 
+            rwop = SDL_RWFromFile("sprites/seeds/pumpkin/l1pumpkin.png", "rb");
+            plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/pumpkin/l2pumpkin.png", "rb");
+            plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/pumpkin/l3pumpkin.png", "rb");
+            plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/pumpkin/pumpkin.png", "rb");
+            plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+        break;
+        case tomato: 
+            rwop = SDL_RWFromFile("sprites/seeds/tomato/l1tomato.png", "rb");
+            plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/tomato/l2tomato.png", "rb");
+            plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/tomato/l3tomato.png", "rb");
+            plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
+            rwop = SDL_RWFromFile("sprites/seeds/tomato/tomato.png", "rb");
+            plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+        break;
+    }
 
-    plante->tPlante[plante->state] = SDL_CreateTextureFromSurface(render, plante->sPlante[plante->state]);
+    rwop = SDL_RWFromFile("sprites/seeds/dead.png", "rb");
+    plante->sPlante[DEAD] = IMG_LoadPNG_RW(rwop);
 
-    /*plante->position = player->position;
+    for(i = 0; i < PLANTE; i++){
+        plante->tPlante[i] = SDL_CreateTextureFromSurface(render, plante->sPlante[i]);
+        SDL_FreeSurface(plante->sPlante[i]);
+    }
 
-    switch(player->direction){
-        case HAUT: plante->position.y += 4; break;
-        case BAS: plante->position.y += 10; break;
-        case GAUCHE: plante->position.x -= 8; plante->position.y += 7; break;
-        case DROITE: plante->position.x += 8; plante->position.y += 7; break;
-        default: break;
-    }*/
+    plante->position = tile->position;
 
-    plante->position = tile;
-
-    return(plante);
+    plantes->plantes[plantes->nb_elem] = plante;
+    plantes->nb_elem++;
 }
 
-void action(SDL_Renderer *render, player_t * const player){
+void becher(SDL_Renderer * render, player_t * const player, tile_t * tile){
+    SDL_RWops *rwop = SDL_RWFromFile("dirt.png", "rb");
+    tile->sTile = IMG_LoadPNG_RW(rwop);
+
+    tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
+
+    SDL_FreeSurface(tile->sTile);
+
+    tile->type = DIRT;
+}
+
+void recolter(player_t * const player, listeP_t * plantes){
+    plante_t * temp = malloc(sizeof(plante_t));
+    SDL_Rect dif;
+    int i, j;
+    int elements = plantes->nb_elem;
+
+    for(i = 0; i < elements; i++){
+        temp = plantes->plantes[i];
+
+        dif.x = player->position.x - temp->position.x;
+        dif.y = player->position.y - temp->position.y;
+        if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
+            (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
+            (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
+            (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
+        {
+            for(j = 0; j < PLANTE; j++){
+                SDL_DestroyTexture(temp->tPlante[i]);
+            }
+            free(temp);
+            temp = NULL;
+            plantes->nb_elem--;
+        }
+    }
+}
+
+void jour_suivant(SDL_Renderer * render, player_t * const player, listeP_t * plantes){
+    int i;
+    int elements = plantes->nb_elem;
+
+    plante_t * temp = malloc(sizeof(plante_t));
+
+    for(i = 0; i < elements; i++){
+        temp = plantes->plantes[i];
+
+        if(temp->state != DEAD){
+            if(temp->state == FULL){
+                temp->state = DEAD;
+            }
+            else{
+                temp->state++;
+            }
+        }
+    }
+}
+
+void arroser(SDL_Renderer * render, player_t * const player, plante_t * plante){
     
+}
+
+void action(SDL_Renderer * render, player_t * const player, tile_t * tile, listeP_t * plantes){
+    switch(player->holding){
+        case TOOL:
+            switch(player->tool){
+                case hoe: if(tile->type == GRASS) becher(render, player, tile); break;
+                case scythe: recolter(player, plantes); break;
+                default: break;
+            }; break;
+        case SEED: if(tile->type == DIRT) planter(render, player, tile, plantes); break;
+        default: break;
+    }
 }
 
 //Fonction de jeu principal, avec une boucle qui vérifie que le jeu n'est pas fermé
 
 int jouer(SDL_Renderer *render){
     player_t *player = malloc(sizeof(player_t));
-    plante_t *plante = malloc(sizeof(plante_t));
+    tile_t *tile = malloc(sizeof(tile_t));
+    plante_t * tempPlante = malloc(sizeof(plante_t));
+
+    listeP_t * plantes = malloc(sizeof(listeP_t));
+    listeT_t * tiles = malloc(sizeof(listeT_t));
 
     SDL_Rect position, backRect, dirt;
     SDL_Surface *sBackground = NULL;
-    SDL_Surface *sTile = NULL;
     SDL_Texture *tBackground = NULL;
-    SDL_Texture *tTile = NULL;
     SDL_Texture *persoActuel = NULL;
 
     int i;
-
-    player->cooldown = 5000;
 
     for(i = 0; i < PERSO; i++){
         player->sPerso[i] = NULL;
@@ -86,8 +251,8 @@ int jouer(SDL_Renderer *render){
     rwop = SDL_RWFromFile("sprites/player/player.png", "rb");
     player->sPerso[0] = IMG_LoadPNG_RW(rwop);
 
-    rwop = SDL_RWFromFile("dirt.png", "rb");
-    sTile = IMG_LoadPNG_RW(rwop);
+    rwop = SDL_RWFromFile("grass.png", "rb");
+    tile->sTile = IMG_LoadPNG_RW(rwop);
 
     /*for(j = 0; j < 5; j++){
         if(sPerso[j] == NULL){
@@ -106,8 +271,8 @@ int jouer(SDL_Renderer *render){
     tBackground = SDL_CreateTextureFromSurface(render, sBackground);
     SDL_FreeSurface(sBackground);
 
-    tTile = SDL_CreateTextureFromSurface(render, sTile);
-    SDL_FreeSurface(sTile);
+    tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
+    SDL_FreeSurface(tile->sTile);
 
     SDL_RenderClear(render);
 
@@ -116,12 +281,22 @@ int jouer(SDL_Renderer *render){
         SDL_Log("Erreur lors du chargement du personnage actuelle");
     }
 
-    plante = NULL;
-
     player->direction = BAS;
+    
     player->position.x = 0;
     player->position.y = 0;
+
+    player->cooldown = 2500;
+    player->holding = NOTHING;
+    player->tool = hoe;
+    player->seed = cauliflower;
+
     player->last_action = 0;
+
+    tile->position.x = 20;
+    tile->position.y = 20;
+
+    tile->type = GRASS;
 
     position.w = 100;
     position.h = 100;
@@ -129,8 +304,10 @@ int jouer(SDL_Renderer *render){
     backRect.w = 1920;
     backRect.h = 1080;
 
-    dirt.x = 20;
-    dirt.y = 20;
+    plantes->nb_elem = 0;
+    tiles->nb_elem = 0;
+
+    plantes->plantes = malloc(sizeof(plante_t*));
 
     SDL_Rect dif;
 
@@ -151,22 +328,42 @@ int jouer(SDL_Renderer *render){
                         case SDLK_ESCAPE: is_running = false; break;
 
                         //Déplacement du personnage
-                        case SDLK_UP: deplacerPers(&player->position, HAUT); player->direction = HAUT; break;
-                        case SDLK_DOWN: deplacerPers(&player->position, BAS); player->direction = BAS; break;
-                        case SDLK_LEFT: deplacerPers(&player->position, GAUCHE); player->direction = GAUCHE; break;
-                        case SDLK_RIGHT: deplacerPers(&player->position, DROITE); player->direction = DROITE; break;
+                        case SDLK_z: player->direction = HAUT; deplacerPers(player); break;
+                        case SDLK_s: player->direction = BAS; deplacerPers(player); break;
+                        case SDLK_q: player->direction = GAUCHE; deplacerPers(player); break;
+                        case SDLK_d: player->direction = DROITE; deplacerPers(player); break;
 
                         //Action performée
                         case SDLK_e: if(SDL_GetTicks() - player->last_action > player->cooldown){
-                            dif.x = player->position.x - dirt.x;
-                            dif.y = player->position.y - dirt.y;
+                            dif.x = player->position.x - tile->position.x;
+                            dif.y = player->position.y - tile->position.y;
                             if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
                                 (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
                                 (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
                                 (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
-                                plante = planter(render, player, dirt);
+                                action(render, player, tile, plantes);
                             player->last_action = SDL_GetTicks();
                         }; break;
+
+                        case SDLK_a: jour_suivant(render, player, plantes); break;
+
+                        case SDLK_RIGHT: if(player->holding == SEED){
+                            player->holding = NOTHING;
+                        }
+                        else{
+                            player->holding++;
+                        }; break;
+
+                        case SDLK_LEFT: if(player->holding == NOTHING){
+                            player->holding = SEED;
+                        }
+                        else{
+                            player->holding--;
+                        }; break;
+                        
+                        case SDLK_UP: changer_outil(player, HAUT); break;
+
+                        case SDLK_DOWN: changer_outil(player, BAS); break;
 
                         default: break;
                     }
@@ -179,19 +376,23 @@ int jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
-        position.x = dirt.x * STEP;
-        position.y = dirt.y * STEP;
+        position.x = tile->position.x * STEP;
+        position.y = tile->position.y * STEP;
 
-        if(SDL_RenderCopy(render, tTile, NULL, &position) != 0){
+        if(SDL_RenderCopy(render, tile->tTile, NULL, &position) != 0){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
-        if(plante != NULL){
-            position.x = plante->position.x * STEP;
-            position.y = plante->position.y * STEP;
+        if(plantes->nb_elem > 0){
+            for(i = 0; i < plantes->nb_elem; i++){
+                tempPlante = plantes->plantes[i];
 
-            if(SDL_RenderCopy(render, plante->tPlante[plante->state], NULL, &position) != 0){
-                SDL_Log("Erreur lors de l'affichage à l'écran");
+                position.x = tempPlante->position.x * STEP;
+                position.y = tempPlante->position.y * STEP;
+
+                if(SDL_RenderCopy(render, tempPlante->tPlante[tempPlante->state], NULL, &position) != 0){
+                    SDL_Log("Erreur lors de l'affichage à l'écran");
+                }
             }
         }
 
@@ -201,6 +402,8 @@ int jouer(SDL_Renderer *render){
         if(SDL_RenderCopy(render, persoActuel, NULL, &position) != 0){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
+
+        printf("[%d | %d | %d] Type = %d\n", player->holding, player->tool, player->seed, tile->type);
 
         SDL_RenderPresent(render);
     }
