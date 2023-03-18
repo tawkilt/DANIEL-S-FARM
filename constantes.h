@@ -23,6 +23,8 @@ typedef enum seed_s {cauliflower, melon, potato, pumpkin, tomato} seed_t; //Tous
 typedef struct player_s{
     SDL_Rect position; //Position du personnage sur la carte
 
+    int inventaire[5];
+
     SDL_Surface *sPerso[PERSO]; //Sprites du personnage
     SDL_Texture *tPerso[PERSO];
 
@@ -43,8 +45,9 @@ typedef struct plante_s{
     SDL_Surface *sPlante[PLANTE]; //Sprites de la plante
     SDL_Texture *tPlante[PLANTE];
 
+    seed_t type;
     int state; //État de la plante
-    bool arrose;
+    bool arrose; //État de l'arrosage
 }plante_t;
 
 //Structure avec les données d'une tile
@@ -55,6 +58,7 @@ typedef struct tile_s{
     SDL_Texture *tTile;
 
     int type; //Type de la tile (herbe ou terre)
+    bool arrose; //État de l'arrosage
 }tile_t;
 
 typedef struct listeP_s{
