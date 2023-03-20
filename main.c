@@ -236,9 +236,16 @@ void jour_suivant(SDL_Renderer * render, player_t * const player, listeP_t * pla
                 temp->state = DEAD;
             }
             else{
-                temp->state++;
+                if(temp->arrose == true){
+                    temp->state++;
+                }
+                else{
+                    temp->state = DEAD;
+                }
             }
         }
+
+        temp->arrose = false;
     }
     temp = NULL;
 }
@@ -434,6 +441,8 @@ void jouer(SDL_Renderer *render){
 
     backRect.w = 1920;
     backRect.h = 1080;
+    backRect.x = 0;
+    backRect.y = 0;
 
     frames[0].x = 600;
     frames[0].y = 600;
@@ -543,7 +552,7 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
-        /*printf("[%d | %d | %d] ", player->holding, player->tool, player->seed);
+        printf("[%d | %d | %d] ", player->holding, player->tool, player->seed);
         printf("Inventaire : [ ");
         for(i = 0; i < 5; i++){
             printf("%d ", player->inventaire[i]);
@@ -551,7 +560,7 @@ void jouer(SDL_Renderer *render){
                 printf("| ");
             }
         }
-        printf("]\n");*/
+        printf("]\n");
 
         SDL_RenderPresent(render);
     }
