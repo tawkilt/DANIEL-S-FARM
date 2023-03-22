@@ -22,22 +22,24 @@ void deplacerPers(player_t * player){
 
 //Fonction qui va changer l'outil que l'on a dans les mains
 
-void changer_outil(player_t *player, int const direction){
+void changer_outil(player_t *player, int const direction, tool_t * outil, seed_t * graine){
     switch(player->holding){
         case TOOL:
             switch(direction){
                 case HAUT: if(player->tool == can){
-                    player->tool = hoe;
+                    player->tool = *outil = hoe;
                 }
                 else{
                     player->tool++;
+                    *outil += 1;
                 }; break;
 
                 case BAS: if(player->tool == hoe){
-                    player->tool = can;
+                    player->tool = *outil = can;
                 }
                 else{
                     player->tool--;
+                    *outil -= 1;
                 }; break;
 
                 default: break;
@@ -46,17 +48,19 @@ void changer_outil(player_t *player, int const direction){
         case SEED:
             switch(direction){
                 case HAUT: if(player->seed == tomato){
-                    player->seed = cauliflower;
+                    player->seed = *graine = cauliflower;
                 }
                 else{
                     player->seed++;
+                    *graine += 1;
                 }; break;
 
                 case BAS: if(player->seed == cauliflower){
-                    player->seed = tomato;
+                    player->seed = *graine = tomato;
                 }
                 else{
                     player->seed--;
+                    *graine -= 1;
                 }; break;
 
                 default: break;
@@ -334,6 +338,9 @@ void jouer(SDL_Renderer *render){
     listeP_t * plantes = malloc(sizeof(listeP_t));
     listeT_t * tiles = malloc(sizeof(listeT_t));
 
+    tool_t outilAct = hoe;
+    seed_t graineAct = cauliflower;
+
     SDL_Rect position, backRect, dirt, contour;
     SDL_Surface *sBackground = NULL;
     SDL_Texture *tBackground = NULL;
@@ -343,6 +350,11 @@ void jouer(SDL_Renderer *render){
     SDL_Texture * tFrames[3];
     SDL_Surface * sContour = NULL;
     SDL_Texture * tContour = NULL;
+
+    SDL_Surface * sTools[OUTIL];
+    SDL_Texture * tTools[OUTIL];
+    SDL_Surface * sSeeds[PLANTE];
+    SDL_Texture * tSeeds[PLANTE];
 
     SDL_Rect frames[3];
 
@@ -364,10 +376,40 @@ void jouer(SDL_Renderer *render){
     rwop = SDL_RWFromFile("grass.png", "rb");
     tile->sTile = IMG_LoadPNG_RW(rwop);
 
-    rwop = SDL_RWFromFile("sprites/frames/frame.png", "rb");
     for(i = 0; i < 3; i++){
+        rwop = SDL_RWFromFile("sprites/frames/frame.png", "rb");
         sFrames[i] = IMG_LoadPNG_RW(rwop);
     }
+
+    /*-----------------------------*/
+
+    rwop = SDL_RWFromFile("sprites/tools/hoe.png", "rb");
+    sTools[hoe] = IMG_LoadPNG_RW(rwop);
+
+    rwop = SDL_RWFromFile("sprites/tools/scythe.png", "rb");
+    sTools[scythe] = IMG_LoadPNG_RW(rwop);
+
+    rwop = SDL_RWFromFile("sprites/tools/can.png", "rb");
+    sTools[can] = IMG_LoadPNG_RW(rwop);
+
+    /*----------------------------*/
+
+    rwop = SDL_RWFromFile("sprites/seeds/cauliflower/cauliflowerBag.png", "rb");
+    sSeeds[cauliflower] = IMG_LoadPNG_RW(rwop);
+
+    rwop = SDL_RWFromFile("sprites/seeds/melon/melonBag.png", "rb");
+    sSeeds[melon] = IMG_LoadPNG_RW(rwop);
+
+    rwop = SDL_RWFromFile("sprites/seeds/potato/potatoBag.png", "rb");
+    sSeeds[potato] = IMG_LoadPNG_RW(rwop);
+
+    rwop = SDL_RWFromFile("sprites/seeds/pumpkin/pumpkinBag.png", "rb");
+    sSeeds[pumpkin] = IMG_LoadPNG_RW(rwop);
+
+    rwop = SDL_RWFromFile("sprites/seeds/tomato/tomatoBag.png", "rb");
+    sSeeds[tomato] = IMG_LoadPNG_RW(rwop);
+
+    /*-----------------------------*/
 
     rwop = SDL_RWFromFile("sprites/frames/frame2.png", "rb");
     sContour = IMG_LoadPNG_RW(rwop);
@@ -407,6 +449,20 @@ void jouer(SDL_Renderer *render){
     SDL_FreeSurface(tile->sTile);
     tile->sTile = NULL;
 
+    /*-----------------------------*/
+
+    for(i = 0; i < OUTIL; i++){
+        tTools[i] = SDL_CreateTextureFromSurface(render, sTools[i]);
+        SDL_FreeSurface(sTools[i]);
+        sTools[i] = NULL;
+    }
+
+    for(i = 0; i < PLANTE; i++){
+        tSeeds[i] = SDL_CreateTextureFromSurface(render, sSeeds[i]);
+        SDL_FreeSurface(sSeeds[i]);
+        sSeeds[i] = NULL;
+    }
+
     SDL_RenderClear(render);
 
     persoActuel = player->tPerso[0];
@@ -430,11 +486,15 @@ void jouer(SDL_Renderer *render){
 
     player->last_action = 0;
 
+    /*-----------------------------*/
+
     tile->position.x = 20;
     tile->position.y = 20;
 
     tile->arrose = false;
     tile->type = GRASS;
+
+    /*-----------------------------*/
 
     position.w = 100;
     position.h = 100;
@@ -444,10 +504,22 @@ void jouer(SDL_Renderer *render){
     backRect.x = 0;
     backRect.y = 0;
 
-    frames[0].x = 600;
-    frames[0].y = 600;
-    frames[0].h = 100;
-    frames[0].w = 100;
+    /*-----------------------------*/
+
+    for(i = 0; i < 3; i++){
+        frames[i].h = frames[i].w = 100;
+        frames[i].y = 600;
+    }
+
+    frames[NOTHING].x = 529;
+    frames[TOOL].x = 587;
+    frames[SEED].x = 645;
+
+    contour.w = contour.h = 100;
+    contour.y = frames[NOTHING].y;
+    contour.x = frames[NOTHING].x;
+
+    /*-----------------------------*/
 
     plantes->nb_elem = 0;
     tiles->nb_elem = 0;
@@ -494,21 +566,25 @@ void jouer(SDL_Renderer *render){
 
                         case SDLK_RIGHT: if(player->holding == SEED){
                             player->holding = NOTHING;
+                            contour.x = frames[NOTHING].x;
                         }
                         else{
                             player->holding++;
+                            contour.x += 58;
                         }; break;
 
                         case SDLK_LEFT: if(player->holding == NOTHING){
                             player->holding = SEED;
+                            contour.x = frames[SEED].x;
                         }
                         else{
                             player->holding--;
+                            contour.x -= 58;
                         }; break;
                         
-                        case SDLK_UP: changer_outil(player, HAUT); break;
+                        case SDLK_UP: changer_outil(player, HAUT, &outilAct, &graineAct); break;
 
-                        case SDLK_DOWN: changer_outil(player, BAS); break;
+                        case SDLK_DOWN: changer_outil(player, BAS, &outilAct, &graineAct); break;
 
                         default: break;
                     }
@@ -548,11 +624,24 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
-        if(SDL_RenderCopy(render, tFrames[0], NULL, &frames[0]) != 0){
+        for(i = 0; i < 3; i++){
+            if(SDL_RenderCopy(render, tFrames[i], NULL, &frames[i]) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
+        }
+
+        if(SDL_RenderCopy(render, tTools[outilAct], NULL, &frames[TOOL]) != 0){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
-        printf("[%d | %d | %d] ", player->holding, player->tool, player->seed);
+        if(SDL_RenderCopy(render, tSeeds[graineAct], NULL, &frames[SEED]) != 0){
+            SDL_Log("Erreur lors de l'affichage à l'écran");
+        }
+
+        if(SDL_RenderCopy(render, tContour, NULL, &contour) != 0){
+            SDL_Log("Erreur lors de l'affichage à l'écran");
+        }
+
         printf("Inventaire : [ ");
         for(i = 0; i < 5; i++){
             printf("%d ", player->inventaire[i]);

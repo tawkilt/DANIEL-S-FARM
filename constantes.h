@@ -9,6 +9,7 @@
 
 #define STEP 5
 #define PERSO 4
+#define OUTIL 3
 #define PLANTE 5
 
 enum {BAS, GAUCHE, HAUT, DROITE};
