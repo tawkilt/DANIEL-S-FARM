@@ -61,6 +61,7 @@ typedef struct tile_s{
 
     int type; //Type de la tile (herbe ou terre)
     bool arrose; //État de l'arrosage
+    int jours; //Jours passés depuis qu'elle est une tile de terre
 }tile_t;
 
 typedef struct listeP_s{

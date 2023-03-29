@@ -8,6 +8,36 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+tile_t * init_tile(SDL_Renderer * render, int x, int y){
+    tile_t * tile = malloc(sizeof(tile_t));
+
+    tile->position.x = x;
+    tile->position.y = y;
+
+    tile->sTile = IMG_Load("grass.png");
+
+    tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
+    SDL_FreeSurface(tile->sTile);
+    tile->sTile = NULL;
+
+    tile->type = GRASS;
+    tile->arrose = false;
+    tile->jours = 0;
+
+    return(tile);
+}
+
+void liste_tiles(SDL_Renderer * render, listeT_t * tiles){
+    int i, j, k;
+    tiles->nb_elem = 0;
+    for(i = 41, k = 0; i < 111; i += 7, k++){
+        for(j = 41; j < 76; j += 7){
+            tiles->tiles[k] = init_tile(render, i, j);
+            tiles->nb_elem++;
+        }
+    }
+}
+
 //Fonction de déplacement du personnage
 
 void deplacerPers(player_t * player){
@@ -86,8 +116,6 @@ void planter(SDL_Renderer *render, player_t * const player, tile_t * const tile,
 
         int i;
 
-        SDL_RWops * rwop = NULL;
-
         for(i = 0; i < PLANTE; i++){
             plante->sPlante[i] = NULL;
             plante->tPlante[i] = NULL;
@@ -97,60 +125,39 @@ void planter(SDL_Renderer *render, player_t * const player, tile_t * const tile,
 
         //Ajout des sprites dans le tableau de surfaces de la plante, dépendant de quelle plante il s'agit
         switch(player->seed){
-            case cauliflower: 
-                rwop = SDL_RWFromFile("sprites/seeds/cauliflower/l1cauliflower.png", "rb");
-                plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/cauliflower/l2cauliflower.png", "rb");
-                plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/cauliflower/cauliflower.png", "rb");
-                plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/cauliflower/cauliflower.png", "rb");
-                plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+            case cauliflower:                
+                plante->sPlante[NEW] = IMG_Load("sprites/seeds/cauliflower/l1cauliflower.png");                
+                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/cauliflower/l2cauliflower.png");                
+                plante->sPlante[FULL] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
+                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
             break;
             case melon: 
-                rwop = SDL_RWFromFile("sprites/seeds/melon/l1melon.png", "rb");
-                plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/melon/l2melon.png", "rb");
-                plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/melon/l3melon.png", "rb");
-                plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/melon/melon.png", "rb");
-                plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+                plante->sPlante[NEW] = IMG_Load("sprites/seeds/melon/l1melon.png");
+                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/melon/l2melon.png"); 
+                plante->sPlante[FULL] = IMG_Load("sprites/seeds/melon/l3melon.png");
+                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/melon/melon.png");
             break;
             case potato: 
-                rwop = SDL_RWFromFile("sprites/seeds/potato/l1potato.png", "rb");
-                plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/potato/l2potato.png", "rb");
-                plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/potato/l3potato.png", "rb");
-                plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/potato/potato.png", "rb");
-                plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+                plante->sPlante[NEW] = IMG_Load("sprites/seeds/potato/l1potato.png");
+                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/potato/l2potato.png");
+                plante->sPlante[FULL] = IMG_Load("sprites/seeds/potato/l3potato.png");
+                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/potato/potato.png");
             break;
             case pumpkin: 
-                rwop = SDL_RWFromFile("sprites/seeds/pumpkin/l1pumpkin.png", "rb");
-                plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/pumpkin/l2pumpkin.png", "rb");
-                plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/pumpkin/l3pumpkin.png", "rb");
-                plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/pumpkin/pumpkin.png", "rb");
-                plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+                plante->sPlante[NEW] = IMG_Load("sprites/seeds/pumpkin/l1pumpkin.png");
+                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/pumpkin/l2pumpkin.png");
+                plante->sPlante[FULL] = IMG_Load("sprites/seeds/pumpkin/l3pumpkin.png");
+                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/pumpkin/pumpkin.png");
             break;
             case tomato: 
-                rwop = SDL_RWFromFile("sprites/seeds/tomato/l1tomato.png", "rb");
-                plante->sPlante[NEW] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/tomato/l2tomato.png", "rb");
-                plante->sPlante[SEMI] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/tomato/l3tomato.png", "rb");
-                plante->sPlante[FULL] = IMG_LoadPNG_RW(rwop);
-                rwop = SDL_RWFromFile("sprites/seeds/tomato/tomato.png", "rb");
-                plante->sPlante[PLANT] = IMG_LoadPNG_RW(rwop);
+                plante->sPlante[NEW] = IMG_Load("sprites/seeds/tomato/l1tomato.png");
+                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/tomato/l2tomato.png");
+                plante->sPlante[FULL] = IMG_Load("sprites/seeds/tomato/l3tomato.png");
+                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/tomato/tomato.png");
             break;
         }
 
-        rwop = SDL_RWFromFile("sprites/seeds/dead.png", "rb");
-        plante->sPlante[DEAD] = IMG_LoadPNG_RW(rwop);
+        plante->sPlante[DEAD] = IMG_Load("sprites/seeds/dead.png");
 
         //Création des textures et suppression des surfaces
         for(i = 0; i < PLANTE; i++){
@@ -165,8 +172,6 @@ void planter(SDL_Renderer *render, player_t * const player, tile_t * const tile,
 
         plantes->plantes[plantes->nb_elem] = plante;
         plantes->nb_elem++;
-
-        free(rwop);
     }
 }
 
@@ -182,16 +187,15 @@ void becher(SDL_Renderer * render, player_t * const player, tile_t * tile){
         (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
         (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
     {
-        SDL_RWops *rwop = SDL_RWFromFile("dirt.png", "rb");
-        tile->sTile = IMG_LoadPNG_RW(rwop);
+        SDL_DestroyTexture(tile->tTile);
+
+        tile->sTile = IMG_Load("dirt.png");
 
         tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
 
         SDL_FreeSurface(tile->sTile);
 
         tile->type = DIRT;
-
-        free(rwop);
     }
 }
 
@@ -365,7 +369,6 @@ int afficheText(SDL_Renderer * render, SDL_Rect boite, char * message){
 
 void jouer(SDL_Renderer *render){
     player_t *player = malloc(sizeof(player_t));
-    tile_t *tile = malloc(sizeof(tile_t));
     plante_t * tempPlante = malloc(sizeof(plante_t));
 
     listeP_t * plantes = malloc(sizeof(listeP_t));
@@ -412,11 +415,9 @@ void jouer(SDL_Renderer *render){
 
     //Initialisation des sprites
 
-    //sBackground = IMG_Load("background.png");
+    sBackground = IMG_Load("sprites/map/map.png");
 
     player->sPerso[0] = IMG_Load("sprites/player/player.png");
-
-    tile->sTile = IMG_Load("grass.png");
 
     for(i = 0; i < 3; i++){
         sFrames[i] = IMG_Load("sprites/frames/frame.png");
@@ -495,10 +496,6 @@ void jouer(SDL_Renderer *render){
     SDL_FreeSurface(sBackground);
     sBackground = NULL;
 
-    tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
-    SDL_FreeSurface(tile->sTile);
-    tile->sTile = NULL;
-
     /*-----------------------------*/
 
     for(i = 0; i < OUTIL; i++){
@@ -551,7 +548,7 @@ void jouer(SDL_Renderer *render){
 
     player->money = 20;
 
-    player->cooldown = 2500;
+    player->cooldown = 500;
     player->holding = NOTHING;
     player->tool = hoe;
     player->seed = cauliflower;
@@ -560,19 +557,28 @@ void jouer(SDL_Renderer *render){
 
     /*-----------------------------*/
 
-    tile->position.x = 20;
-    tile->position.y = 20;
+    /*tile->position.x = 41;
+    tile->position.y = 41;
 
     tile->arrose = false;
     tile->type = GRASS;
+
+    tile2->position.x = 48;
+    tile2->position.y = 41;
+
+    tile2->position.x = 41;
+    tile2->position.y = 48;
+
+    tile2->arrose = false;
+    tile2->type = GRASS;*/
 
     /*-----------------------------*/
 
     position.w = 100;
     position.h = 100;
 
-    backRect.w = 1920;
-    backRect.h = 1080;
+    backRect.w = 1296;
+    backRect.h = 720;
     backRect.x = 0;
     backRect.y = 0;
 
@@ -615,6 +621,8 @@ void jouer(SDL_Renderer *render){
     tiles->nb_elem = 0;
 
     plantes->plantes = malloc(sizeof(plante_t *));
+
+    liste_tiles(render, tiles);
 
     SDL_Rect dif;
 
@@ -685,15 +693,18 @@ void jouer(SDL_Renderer *render){
         }
 
         //Affichage de tous les éléments sur la carte
-        /*if(SDL_RenderCopy(render, tBackground, NULL, &backRect) != 0){
+        if(SDL_RenderCopy(render, tBackground, NULL, &backRect) != 0){
             SDL_Log("Erreur lors de l'affichage à l'écran");
-        }*/
+        }
 
-        position.x = tile->position.x * STEP;
-        position.y = tile->position.y * STEP;
+        for(i = 0; i < tiles->nb_elem; i++){
 
-        if(SDL_RenderCopy(render, tile->tTile, NULL, &position) != 0){
-            SDL_Log("Erreur lors de l'affichage à l'écran");
+            position.x = tiles->tiles[i]->position.x * STEP;
+            position.y = tiles->tiles[i]->position.y * STEP;
+
+            if(SDL_RenderCopy(render, tiles->tiles[i]->tTile, NULL, &position) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
         }
 
         if(plantes->nb_elem > 0){
@@ -786,6 +797,8 @@ void jouer(SDL_Renderer *render){
             }
         }
         printf("]\n");*/
+
+        printf("Positions perso : [%d | %d]\n", player->position.x, player->position.y);
 
         SDL_RenderPresent(render);
     }
