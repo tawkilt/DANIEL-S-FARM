@@ -328,6 +328,39 @@ void action(SDL_Renderer * render, player_t * player, tile_t * tile, listeP_t * 
     }
 }
 
+int afficheText(SDL_Renderer * render, SDL_Rect boite, char * message){
+    SDL_Color blanc = {255, 255, 255};
+    SDL_Surface * texte ;
+    SDL_Texture * texte_tex ;
+    TTF_Font * police = NULL;
+
+    if ((police = TTF_OpenFont("sprites/font/font.ttf", 50)) == NULL){
+        SDL_Log("Erreur lors du chargement de la police");
+    }
+
+    texte = TTF_RenderUTF8_Blended(police, message, blanc);
+
+    if(!texte){
+        return 1 ;
+    }
+
+    texte_tex = SDL_CreateTextureFromSurface(render, texte);
+
+    if(!texte_tex){
+        return 1 ;
+    }
+
+    SDL_QueryTexture(texte_tex, NULL, NULL, &(boite.w), &(boite.h));
+
+    if(SDL_RenderCopy(render, texte_tex, NULL, &boite) != 0){
+        SDL_Log("Erreur lors de l'affichage à l'écran");
+    }
+
+    SDL_DestroyTexture(texte_tex);
+    SDL_FreeSurface(texte);
+    return 0;
+}
+
 //Fonction de jeu principal, avec une boucle qui vérifie que le jeu n'est pas fermé
 
 void jouer(SDL_Renderer *render){
@@ -341,7 +374,7 @@ void jouer(SDL_Renderer *render){
     tool_t outilAct = hoe;
     seed_t graineAct = cauliflower;
 
-    SDL_Rect position, backRect, dirt, contour;
+    SDL_Rect position, backRect, dirt, contour, inventory, boite, coin;
     SDL_Surface *sBackground = NULL;
     SDL_Texture *tBackground = NULL;
     SDL_Texture *persoActuel = NULL;
@@ -350,15 +383,27 @@ void jouer(SDL_Renderer *render){
     SDL_Texture * tFrames[3];
     SDL_Surface * sContour = NULL;
     SDL_Texture * tContour = NULL;
+    SDL_Surface * sInv = NULL;
+    SDL_Texture * tInv = NULL;
+
+    SDL_Surface * sCoin = NULL;
+    SDL_Texture * tCoin = NULL;
 
     SDL_Surface * sTools[OUTIL];
     SDL_Texture * tTools[OUTIL];
     SDL_Surface * sSeeds[PLANTE];
     SDL_Texture * tSeeds[PLANTE];
 
+    SDL_Surface * sPlante[PLANTE];
+    SDL_Texture * tPlante[PLANTE];
+
     SDL_Rect frames[3];
+    SDL_Rect invent[PLANTE];
 
     int i, j;
+    bool inv = false;
+
+    char * text = malloc(sizeof(char));
 
     for(i = 0; i < PERSO; i++){
         player->sPerso[i] = NULL;
@@ -367,54 +412,59 @@ void jouer(SDL_Renderer *render){
 
     //Initialisation des sprites
 
-    SDL_RWops *rwop = SDL_RWFromFile("background.png", "rb");
-    sBackground = IMG_LoadPNG_RW(rwop);
+    //sBackground = IMG_Load("background.png");
 
-    rwop = SDL_RWFromFile("sprites/player/player.png", "rb");
-    player->sPerso[0] = IMG_LoadPNG_RW(rwop);
+    player->sPerso[0] = IMG_Load("sprites/player/player.png");
 
-    rwop = SDL_RWFromFile("grass.png", "rb");
-    tile->sTile = IMG_LoadPNG_RW(rwop);
+    tile->sTile = IMG_Load("grass.png");
 
     for(i = 0; i < 3; i++){
-        rwop = SDL_RWFromFile("sprites/frames/frame.png", "rb");
-        sFrames[i] = IMG_LoadPNG_RW(rwop);
+        sFrames[i] = IMG_Load("sprites/frames/frame.png");
     }
 
     /*-----------------------------*/
 
-    rwop = SDL_RWFromFile("sprites/tools/hoe.png", "rb");
-    sTools[hoe] = IMG_LoadPNG_RW(rwop);
+    sTools[hoe] = IMG_Load("sprites/tools/hoe.png");
 
-    rwop = SDL_RWFromFile("sprites/tools/scythe.png", "rb");
-    sTools[scythe] = IMG_LoadPNG_RW(rwop);
+    sTools[scythe] = IMG_Load("sprites/tools/scythe.png");
 
-    rwop = SDL_RWFromFile("sprites/tools/can.png", "rb");
-    sTools[can] = IMG_LoadPNG_RW(rwop);
+    sTools[can] = IMG_Load("sprites/tools/can.png");
 
     /*----------------------------*/
 
-    rwop = SDL_RWFromFile("sprites/seeds/cauliflower/cauliflowerBag.png", "rb");
-    sSeeds[cauliflower] = IMG_LoadPNG_RW(rwop);
+    sSeeds[cauliflower] = IMG_Load("sprites/seeds/cauliflower/cauliflowerBag.png");
 
-    rwop = SDL_RWFromFile("sprites/seeds/melon/melonBag.png", "rb");
-    sSeeds[melon] = IMG_LoadPNG_RW(rwop);
+    sSeeds[melon] = IMG_Load("sprites/seeds/melon/melonBag.png");
 
-    rwop = SDL_RWFromFile("sprites/seeds/potato/potatoBag.png", "rb");
-    sSeeds[potato] = IMG_LoadPNG_RW(rwop);
+    sSeeds[potato] = IMG_Load("sprites/seeds/potato/potatoBag.png");
 
-    rwop = SDL_RWFromFile("sprites/seeds/pumpkin/pumpkinBag.png", "rb");
-    sSeeds[pumpkin] = IMG_LoadPNG_RW(rwop);
+    sSeeds[pumpkin] = IMG_Load("sprites/seeds/pumpkin/pumpkinBag.png");
 
-    rwop = SDL_RWFromFile("sprites/seeds/tomato/tomatoBag.png", "rb");
-    sSeeds[tomato] = IMG_LoadPNG_RW(rwop);
+    sSeeds[tomato] = IMG_Load("sprites/seeds/tomato/tomatoBag.png");
+
+    /*----------------------------*/
+
+    sPlante[cauliflower] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
+
+    sPlante[melon] = IMG_Load("sprites/seeds/melon/melon.png");
+
+    sPlante[potato] = IMG_Load("sprites/seeds/potato/potato.png");
+
+    sPlante[pumpkin] = IMG_Load("sprites/seeds/pumpkin/pumpkin.png");
+
+    sPlante[tomato] = IMG_Load("sprites/seeds/tomato/tomato.png");
+    
+    /*-----------------------------*/
+
+    sContour = IMG_Load("sprites/frames/frame2.png");
 
     /*-----------------------------*/
 
-    rwop = SDL_RWFromFile("sprites/frames/frame2.png", "rb");
-    sContour = IMG_LoadPNG_RW(rwop);
+    sInv = IMG_Load("sprites/frames/inventory.png");
 
-    rwop = NULL;
+    /*-----------------------------*/
+
+    sCoin = IMG_Load("sprites/tools/coin.png");
 
     /*for(j = 0; j < 5; j++){
         if(sPerso[j] == NULL){
@@ -463,6 +513,26 @@ void jouer(SDL_Renderer *render){
         sSeeds[i] = NULL;
     }
 
+    /*-----------------------------*/
+
+    for(i = 0; i < PLANTE; i++){
+        tPlante[i] = SDL_CreateTextureFromSurface(render, sPlante[i]);
+        SDL_FreeSurface(sPlante[i]);
+        sPlante[i] = NULL;
+    }
+
+    /*-----------------------------*/
+
+    tInv = SDL_CreateTextureFromSurface(render, sInv);
+    SDL_FreeSurface(sInv);
+    sInv = NULL;
+
+    /*-----------------------------*/
+
+    tCoin = SDL_CreateTextureFromSurface(render, sCoin);
+    SDL_FreeSurface(sCoin);
+    sCoin = NULL;
+
     SDL_RenderClear(render);
 
     persoActuel = player->tPerso[0];
@@ -478,6 +548,8 @@ void jouer(SDL_Renderer *render){
     for(i = 0; i < 5; i++){
         player->inventaire[i] = 0;
     }
+
+    player->money = 20;
 
     player->cooldown = 2500;
     player->holding = NOTHING;
@@ -518,6 +590,24 @@ void jouer(SDL_Renderer *render){
     contour.w = contour.h = 100;
     contour.y = frames[NOTHING].y;
     contour.x = frames[NOTHING].x;
+
+    inventory.w = 640;
+    inventory.h = 360;
+    inventory.x = 325;
+    inventory.y = 125;
+
+    for(i = 0; i < PLANTE; i++){
+        invent[i].h = invent[i].w = 200;
+        invent[i].y = 205;
+    }
+
+    invent[cauliflower].x = 340;
+    invent[melon].x = 440;
+    invent[potato].x = 540;
+    invent[pumpkin].x = 640;
+    invent[tomato].x = 740;
+
+    //boite.h = boite.w = 100;
 
     /*-----------------------------*/
 
@@ -586,6 +676,8 @@ void jouer(SDL_Renderer *render){
 
                         case SDLK_DOWN: changer_outil(player, BAS, &outilAct, &graineAct); break;
 
+                        case SDLK_TAB: inv = inv ? false : true; break;
+
                         default: break;
                     }
                 default: break;
@@ -593,9 +685,9 @@ void jouer(SDL_Renderer *render){
         }
 
         //Affichage de tous les éléments sur la carte
-        if(SDL_RenderCopy(render, tBackground, NULL, &backRect) != 0){
+        /*if(SDL_RenderCopy(render, tBackground, NULL, &backRect) != 0){
             SDL_Log("Erreur lors de l'affichage à l'écran");
-        }
+        }*/
 
         position.x = tile->position.x * STEP;
         position.y = tile->position.y * STEP;
@@ -642,14 +734,58 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
-        printf("Inventaire : [ ");
+        if(inv){
+            if(SDL_RenderCopy(render, tInv, NULL, &inventory) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
+
+            for(i = 0; i < PLANTE; i++){
+                if(SDL_RenderCopy(render, tPlante[i], NULL, &invent[i]) != 0){
+                    SDL_Log("Erreur lors de l'affichage à l'écran");
+                }
+            }
+
+            for(i = 0; i < PLANTE; i++){
+                sprintf(text, "%d", player->inventaire[i]);
+                boite.x = invent[i].x + 88;
+                boite.y = 350;
+                afficheText(render, boite, text);
+            }
+
+            coin = invent[potato];
+            coin.y -= 90;
+            coin.x -= 50;
+            if(SDL_RenderCopy(render, tCoin, NULL, &coin) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
+
+            if(player->money < 10){
+                sprintf(text, "00%d", player->money);
+            }
+            else if(player->money >= 10 && player->money < 100){
+                sprintf(text, "0%d", player->money);
+            }
+            else{
+                sprintf(text, "%d", player->money);
+            }
+
+            coin = invent[potato];
+            coin.x += 90;
+            coin.y -= 13;
+            afficheText(render, coin, text);
+        }
+
+        
+        //printf("%s\n", text);
+
+        /*printf("Inventaire : [ ");
         for(i = 0; i < 5; i++){
             printf("%d ", player->inventaire[i]);
             if(i != 4){
                 printf("| ");
             }
         }
-        printf("]\n");
+        printf("]\n");*/
 
         SDL_RenderPresent(render);
     }
@@ -699,6 +835,12 @@ int main(){
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         printf("error initializing SDL: %s\n", SDL_GetError());
     }
+
+    if(TTF_Init() == -1) {
+		fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+		exit(EXIT_FAILURE);
+	}
+
     SDL_Window *win = NULL;
     win = SDL_CreateWindow("Daniels' Valley", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN);
 

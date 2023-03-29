@@ -25,6 +25,7 @@ typedef struct player_s{
     SDL_Rect position; //Position du personnage sur la carte
 
     int inventaire[5];
+    int money;
 
     SDL_Surface *sPerso[PERSO]; //Sprites du personnage
     SDL_Texture *tPerso[PERSO];
