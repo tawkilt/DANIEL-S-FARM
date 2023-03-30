@@ -66,12 +66,12 @@ typedef struct tile_s{
 
 typedef struct listeP_s{
     int nb_elem;
-    plante_t ** plantes;
+    plante_t * plantes[50];
 }listeP_t;
 
 typedef struct listeT_s{
     int nb_elem;
-    tile_t ** tiles;
+    tile_t * tiles[50];
 }listeT_t;
 
 #endif

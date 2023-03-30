@@ -14,11 +14,12 @@ tile_t * init_tile(SDL_Renderer * render, int x, int y){
     tile->position.x = x;
     tile->position.y = y;
 
-    tile->sTile = IMG_Load("grass.png");
+    /*tile->sTile = IMG_Load("grass.png");
 
     tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
     SDL_FreeSurface(tile->sTile);
-    tile->sTile = NULL;
+    tile->sTile = NULL;*/
+    tile->tTile = NULL;
 
     tile->type = GRASS;
     tile->arrose = false;
@@ -28,14 +29,31 @@ tile_t * init_tile(SDL_Renderer * render, int x, int y){
 }
 
 void liste_tiles(SDL_Renderer * render, listeT_t * tiles){
-    int i, j, k;
-    tiles->nb_elem = 0;
-    for(i = 41, k = 0; i < 111; i += 7, k++){
-        for(j = 41; j < 76; j += 7){
-            tiles->tiles[k] = init_tile(render, i, j);
+    int i, j;
+    //tile_t * temp = malloc(sizeof(tile_t));
+    for(i = 41; i < 111; i += 7){
+        for(j = 38; j < 73; j += 7){
+            tiles->tiles[tiles->nb_elem] = init_tile(render, i, j);
             tiles->nb_elem++;
+            //temp = NULL;
         }
     }
+}
+
+int verife_tile(player_t * const player, listeT_t * const tiles){
+    SDL_Rect dif;
+    int i;
+
+    for(i = 0; i < tiles->nb_elem; i++){
+        dif.x = player->position.x - tiles->tiles[i]->position.x;
+        dif.y = player->position.y - tiles->tiles[i]->position.y;
+        if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
+            (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
+            (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
+            (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
+            return i;
+    }
+    return -1;
 }
 
 //Fonction de déplacement du personnage
@@ -102,94 +120,78 @@ void changer_outil(player_t *player, int const direction, tool_t * outil, seed_t
 
 //Fonction qui va initialiser une plante et qui va la placer sur la terre la plus proche
 
-void planter(SDL_Renderer *render, player_t * const player, tile_t * const tile, listeP_t * plantes){
-    SDL_Rect dif;
+void planter(SDL_Renderer *render, player_t * const player, listeP_t * plantes, tile_t * tile){
 
-    dif.x = player->position.x - tile->position.x;
-    dif.y = player->position.y - tile->position.y;
-    if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
-        (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
-    {
-        plante_t * plante = malloc(sizeof(plante_t));
+    plante_t * plante = malloc(sizeof(plante_t));
 
-        int i;
+    int i;
 
-        for(i = 0; i < PLANTE; i++){
-            plante->sPlante[i] = NULL;
-            plante->tPlante[i] = NULL;
-        }
-
-        plante->state = NEW;
-
-        //Ajout des sprites dans le tableau de surfaces de la plante, dépendant de quelle plante il s'agit
-        switch(player->seed){
-            case cauliflower:                
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/cauliflower/l1cauliflower.png");                
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/cauliflower/l2cauliflower.png");                
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
-            break;
-            case melon: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/melon/l1melon.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/melon/l2melon.png"); 
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/melon/l3melon.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/melon/melon.png");
-            break;
-            case potato: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/potato/l1potato.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/potato/l2potato.png");
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/potato/l3potato.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/potato/potato.png");
-            break;
-            case pumpkin: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/pumpkin/l1pumpkin.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/pumpkin/l2pumpkin.png");
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/pumpkin/l3pumpkin.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/pumpkin/pumpkin.png");
-            break;
-            case tomato: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/tomato/l1tomato.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/tomato/l2tomato.png");
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/tomato/l3tomato.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/tomato/tomato.png");
-            break;
-        }
-
-        plante->sPlante[DEAD] = IMG_Load("sprites/seeds/dead.png");
-
-        //Création des textures et suppression des surfaces
-        for(i = 0; i < PLANTE; i++){
-            plante->tPlante[i] = SDL_CreateTextureFromSurface(render, plante->sPlante[i]);
-            SDL_FreeSurface(plante->sPlante[i]);
-            plante->sPlante[i] = NULL;
-        }
-
-        //Initialisation de la position de la plante sur la carte, de son type et ajout dans la liste des plantes
-        plante->type = player->seed;
-        plante->position = tile->position;
-
-        plantes->plantes[plantes->nb_elem] = plante;
-        plantes->nb_elem++;
+    for(i = 0; i < PLANTE; i++){
+        plante->sPlante[i] = NULL;
+        plante->tPlante[i] = NULL;
     }
+
+    plante->state = NEW;
+
+    //Ajout des sprites dans le tableau de surfaces de la plante, dépendant de quelle plante il s'agit
+    switch(player->seed){
+        case cauliflower:                
+            plante->sPlante[NEW] = IMG_Load("sprites/seeds/cauliflower/l1cauliflower.png");                
+            plante->sPlante[SEMI] = IMG_Load("sprites/seeds/cauliflower/l2cauliflower.png");                
+            plante->sPlante[FULL] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
+            plante->sPlante[PLANT] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
+        break;
+        case melon: 
+            plante->sPlante[NEW] = IMG_Load("sprites/seeds/melon/l1melon.png");
+            plante->sPlante[SEMI] = IMG_Load("sprites/seeds/melon/l2melon.png"); 
+            plante->sPlante[FULL] = IMG_Load("sprites/seeds/melon/l3melon.png");
+            plante->sPlante[PLANT] = IMG_Load("sprites/seeds/melon/melon.png");
+        break;
+        case potato: 
+            plante->sPlante[NEW] = IMG_Load("sprites/seeds/potato/l1potato.png");
+            plante->sPlante[SEMI] = IMG_Load("sprites/seeds/potato/l2potato.png");
+            plante->sPlante[FULL] = IMG_Load("sprites/seeds/potato/l3potato.png");
+            plante->sPlante[PLANT] = IMG_Load("sprites/seeds/potato/potato.png");
+        break;
+        case pumpkin: 
+            plante->sPlante[NEW] = IMG_Load("sprites/seeds/pumpkin/l1pumpkin.png");
+            plante->sPlante[SEMI] = IMG_Load("sprites/seeds/pumpkin/l2pumpkin.png");
+            plante->sPlante[FULL] = IMG_Load("sprites/seeds/pumpkin/l3pumpkin.png");
+            plante->sPlante[PLANT] = IMG_Load("sprites/seeds/pumpkin/pumpkin.png");
+        break;
+        case tomato: 
+            plante->sPlante[NEW] = IMG_Load("sprites/seeds/tomato/l1tomato.png");
+            plante->sPlante[SEMI] = IMG_Load("sprites/seeds/tomato/l2tomato.png");
+            plante->sPlante[FULL] = IMG_Load("sprites/seeds/tomato/l3tomato.png");
+            plante->sPlante[PLANT] = IMG_Load("sprites/seeds/tomato/tomato.png");
+        break;
+    }
+
+    plante->sPlante[DEAD] = IMG_Load("sprites/seeds/dead.png");
+
+    //Création des textures et suppression des surfaces
+    for(i = 0; i < PLANTE; i++){
+        plante->tPlante[i] = SDL_CreateTextureFromSurface(render, plante->sPlante[i]);
+        SDL_FreeSurface(plante->sPlante[i]);
+        plante->sPlante[i] = NULL;
+    }
+
+    //Initialisation de la position de la plante sur la carte, de son type et ajout dans la liste des plantes
+    plante->type = player->seed;
+    plante->position = tile->position;
+
+    plantes->plantes[plantes->nb_elem] = plante;
+    plantes->nb_elem++;
 }
 
 //Fonction qui va transformer de l'herbe en terre (changement de la texture et du type)
 
 void becher(SDL_Renderer * render, player_t * const player, tile_t * tile){
-    SDL_Rect dif;
 
-    dif.x = player->position.x - tile->position.x;
-    dif.y = player->position.y - tile->position.y;
-    if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
-        (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
-    {
-        SDL_DestroyTexture(tile->tTile);
-
+    if(tile->type == GRASS){
         tile->sTile = IMG_Load("dirt.png");
+
+        //SDL_DestroyTexture(tile->tTile);
 
         tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
 
@@ -221,6 +223,7 @@ void faucher(player_t * const player, listeP_t * plantes){
         {
             for(j = 0; j < PLANTE; j++){
                 SDL_DestroyTexture(temp->tPlante[i]);
+                temp->tPlante[i] = NULL;
             }
             temp = NULL;
             plantes->nb_elem--;
@@ -261,24 +264,15 @@ void jour_suivant(SDL_Renderer * render, player_t * const player, listeP_t * pla
 //Fonction qui va changer l'état de l'arrosage d'une tile (et d'une plante si elle se trouve sur cette tile)
 
 void arroser(SDL_Renderer * render, player_t * const player, tile_t * tile, listeP_t * plantes){
-    SDL_Rect dif;
 
-    dif.x = player->position.x - tile->position.x;
-    dif.y = player->position.y - tile->position.y;
-    if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
-        (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
-    {
-        if(tile->type == DIRT){
-            int i;
-            tile->arrose = true;
+    if(tile->type == DIRT){
+        int i;
+        tile->arrose = true;
 
-            for(i = 0; i < plantes->nb_elem; i++){
-                if(tile->position.x == plantes->plantes[i]->position.x && tile->position.y == plantes->plantes[i]->position.y){
-                    plantes->plantes[i]->arrose = true;
-                    break;
-                }
+        for(i = 0; i < plantes->nb_elem; i++){
+            if(tile->position.x == plantes->plantes[i]->position.x && tile->position.y == plantes->plantes[i]->position.y){
+                plantes->plantes[i]->arrose = true;
+                break;
             }
         }
     }
@@ -287,48 +281,44 @@ void arroser(SDL_Renderer * render, player_t * const player, tile_t * tile, list
 //Fonction qui va ajouter une plante à l'inventaire si elle est au maximum
 
 void recolter(SDL_Renderer * render, player_t * player, tile_t * tile, listeP_t * plantes){
-    SDL_Rect dif;
 
-    dif.x = player->position.x - tile->position.x;
-    dif.y = player->position.y - tile->position.y;
-    if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
-        (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
-        (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
-    {
-        plante_t * temp = malloc(sizeof(plante_t));
-        int i, j;
-        int elements = plantes->nb_elem;
+    plante_t * temp = malloc(sizeof(plante_t));
+    int i, j;
+    int elements = plantes->nb_elem;
 
-        for(i = 0; i < elements; i++){
-            temp = plantes->plantes[i];
-            if(tile->position.x == temp->position.x && tile->position.y == temp->position.y && temp->state == FULL){
-                player->inventaire[temp->type]++;
+    for(i = 0; i < elements; i++){
+        temp = plantes->plantes[i];
+        if(tile->position.x == temp->position.x && tile->position.y == temp->position.y && temp->state == FULL){
+            player->inventaire[temp->type]++;
 
-                for(j = 0; j < PLANTE; j++){
-                    SDL_DestroyTexture(temp->tPlante[j]);
-                }
-                temp = NULL;
-                plantes->nb_elem--;
+            for(j = 0; j < PLANTE; j++){
+                SDL_DestroyTexture(temp->tPlante[j]);
+                temp->tPlante[i] = NULL;
             }
+            temp = NULL;
+            plantes->nb_elem--;
         }
     }
 }
 
 //Fonction qui va choisir l'action à faire
 
-void action(SDL_Renderer * render, player_t * player, tile_t * tile, listeP_t * plantes){
-    switch(player->holding){
-        case TOOL:
-            switch(player->tool){
-                case hoe: if(tile->type == GRASS) becher(render, player, tile); break;
-                case scythe: faucher(player, plantes); break;
-                case can: arroser(render, player, tile, plantes); break;
-                default: break;
-            }; break;
-        case SEED: if(tile->type == DIRT) planter(render, player, tile, plantes); break;
-        case NOTHING : recolter(render, player, tile, plantes); break;
-        default: break;
+void action(SDL_Renderer * render, player_t * player, listeT_t * tiles, listeP_t * plantes){
+    int i;
+
+    if((i = verife_tile(player, tiles)) >= 0){
+        switch(player->holding){
+            case TOOL:
+                switch(player->tool){
+                    case hoe: if(tiles->tiles[i]->type == GRASS) becher(render, player, tiles->tiles[i]); break;
+                    case scythe: faucher(player, plantes); break;
+                    case can: arroser(render, player, tiles->tiles[i], plantes); break;
+                    default: break;
+                }; break;
+            case SEED: if(tiles->tiles[i]->type == DIRT) planter(render, player, plantes, tiles->tiles[i]); break;
+            case NOTHING : recolter(render, player, tiles->tiles[i], plantes); break;
+            default: break;
+        }
     }
 }
 
@@ -370,6 +360,7 @@ int afficheText(SDL_Renderer * render, SDL_Rect boite, char * message){
 void jouer(SDL_Renderer *render){
     player_t *player = malloc(sizeof(player_t));
     plante_t * tempPlante = malloc(sizeof(plante_t));
+    tile_t * tempTile = malloc(sizeof(tile_t));
 
     listeP_t * plantes = malloc(sizeof(listeP_t));
     listeT_t * tiles = malloc(sizeof(listeT_t));
@@ -530,7 +521,7 @@ void jouer(SDL_Renderer *render){
     SDL_FreeSurface(sCoin);
     sCoin = NULL;
 
-    SDL_RenderClear(render);
+    //SDL_RenderClear(render);
 
     persoActuel = player->tPerso[0];
     if(persoActuel == NULL){
@@ -620,11 +611,12 @@ void jouer(SDL_Renderer *render){
     plantes->nb_elem = 0;
     tiles->nb_elem = 0;
 
-    plantes->plantes = malloc(sizeof(plante_t *));
+    for(i = 0; i < 50; i++){
+        plantes->plantes[i] = NULL;
+        tiles->tiles[i] = NULL;
+    }
 
     liste_tiles(render, tiles);
-
-    SDL_Rect dif;
 
     //Boucle de jeu
 
@@ -634,7 +626,7 @@ void jouer(SDL_Renderer *render){
         SDL_RenderClear(render);
         while(SDL_PollEvent(&event)){
             switch(event.type){
-                case SDL_QUIT: is_running = false;break;
+                case SDL_QUIT: is_running = false; break;
 
                 //Vérification des touches pressées
                 case SDL_KEYDOWN:
@@ -650,13 +642,13 @@ void jouer(SDL_Renderer *render){
 
                         //Action performée
                         case SDLK_e: if(SDL_GetTicks() - player->last_action > player->cooldown){
-                            dif.x = player->position.x - tile->position.x;
+                            /*dif.x = player->position.x - tile->position.x;
                             dif.y = player->position.y - tile->position.y;
                             if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -6 && dif.y <= -3)) && player->direction == DROITE) ||
                                 (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -6 && dif.y <= -3)) && player->direction == GAUCHE) ||
                                 (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
-                                (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
-                                action(render, player, tile, plantes);
+                                (((dif.x >= -3 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))*/
+                            action(render, player, tiles, plantes);
                             player->last_action = SDL_GetTicks();
                         }; break;
 
@@ -697,13 +689,19 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
-        for(i = 0; i < tiles->nb_elem; i++){
+        if(tiles->nb_elem > 0){
+            for(i = 0; i < tiles->nb_elem; i++){
+                tempTile = tiles->tiles[i];
 
-            position.x = tiles->tiles[i]->position.x * STEP;
-            position.y = tiles->tiles[i]->position.y * STEP;
+                position.x = tempTile->position.x * STEP;
+                position.y = tempTile->position.y * STEP;
 
-            if(SDL_RenderCopy(render, tiles->tiles[i]->tTile, NULL, &position) != 0){
-                SDL_Log("Erreur lors de l'affichage à l'écran");
+                if(tempTile->tTile != NULL){
+                    if(SDL_RenderCopy(render, tempTile->tTile, NULL, &position) != 0){
+                        SDL_Log("Erreur lors de l'affichage à l'écran");
+                    }
+                }
+                tempTile = NULL;
             }
         }
 
@@ -714,9 +712,12 @@ void jouer(SDL_Renderer *render){
                 position.x = tempPlante->position.x * STEP;
                 position.y = tempPlante->position.y * STEP;
 
-                if(SDL_RenderCopy(render, tempPlante->tPlante[tempPlante->state], NULL, &position) != 0){
-                    SDL_Log("Erreur lors de l'affichage à l'écran");
+                if(tempPlante->tPlante[tempPlante->state] != NULL){
+                    if(SDL_RenderCopy(render, tempPlante->tPlante[tempPlante->state], NULL, &position) != 0){
+                        SDL_Log("Erreur lors de l'affichage à l'écran");
+                    }
                 }
+                tempTile = NULL;
             }
         }
 
@@ -798,7 +799,7 @@ void jouer(SDL_Renderer *render){
         }
         printf("]\n");*/
 
-        printf("Positions perso : [%d | %d]\n", player->position.x, player->position.y);
+        //printf("Positions perso : [%d | %d]\n", player->position.x, player->position.y);
 
         SDL_RenderPresent(render);
     }
@@ -807,13 +808,20 @@ void jouer(SDL_Renderer *render){
         SDL_DestroyTexture(player->tPerso[i]);
         player->tPerso[i] = NULL;
     }
+
     free(player);
     player = NULL;
 
-    SDL_DestroyTexture(tile->tTile);
-    tile->tTile = NULL;
-    free(tile);
-    tile = NULL;
+    for(i = 0; i < tiles->nb_elem; i++){
+        tempTile = tiles->tiles[i];
+        SDL_DestroyTexture(tempTile->tTile);
+        tempTile->tTile = NULL;
+        free(tempTile);
+        tempTile = NULL;
+    }
+
+    free(tiles);
+    tiles = NULL;
 
     for(i = 0; i < plantes->nb_elem; i++){
         tempPlante = plantes->plantes[i];
@@ -822,16 +830,11 @@ void jouer(SDL_Renderer *render){
             tempPlante->tPlante[i] = NULL;
         }
         free(tempPlante);
+        tempPlante = NULL;
     }
 
-    free(plantes->plantes);
     free(plantes);
     plantes = NULL;
-
-    free(tiles);
-    tiles = NULL;
-
-    tempPlante = NULL;
 
     SDL_DestroyTexture(tBackground);
 
