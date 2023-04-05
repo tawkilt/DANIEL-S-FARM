@@ -27,3 +27,12 @@ int verife_tile(player_t * const player, listeT_t * const tiles){
     }
     return -1;
 }
+
+bool verife_porte(SDL_Rect const porte, player_t * const player){
+    switch(player->local){
+        case OUTSIDE: if(player->position.x >= 16 && player->position.x <= 22 && player->position.y == 31) return true; break;
+        case HOME: if(player->position.x >= 98 && player->position.x <= 104 && player->position.y == 90) return true; break;
+        default: break;
+    }
+    return false;
+}

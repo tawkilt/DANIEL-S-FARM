@@ -57,19 +57,19 @@ void jouer(SDL_Renderer *render){
     SDL_Rect frames[3];
     SDL_Rect invent[PLANTE];
 
+    SDL_Rect portes[2];
+
     int i, j;
     bool inv = false;
 
     int walking = SDL_GetTicks();
-
-    bool back = true;
 
     char * text = malloc(sizeof(char));
 
     //Initialisation des sprites
 
     sBackground[OUTSIDE] = IMG_Load("sprites/map/map.png");
-    sBackground[HOME] = IMG_Load("sprites/map/map.png");
+    sBackground[HOME] = IMG_Load("sprites/map/home.png");
 
     player->sPerso = IMG_Load("sprites/player/bitmap.png");
 
@@ -207,6 +207,8 @@ void jouer(SDL_Renderer *render){
 
     player->money = 20;
 
+    player->local = OUTSIDE;
+
     player->cooldown = 500;
     player->holding = NOTHING;
     player->tool = hoe;
@@ -219,23 +221,6 @@ void jouer(SDL_Renderer *render){
 
     /*-----------------------------*/
 
-    /*tile->position.x = 41;
-    tile->position.y = 41;
-
-    tile->arrose = false;
-    tile->type = GRASS;
-
-    tile2->position.x = 48;
-    tile2->position.y = 41;
-
-    tile2->position.x = 41;
-    tile2->position.y = 48;
-
-    tile2->arrose = false;
-    tile2->type = GRASS;*/
-
-    /*-----------------------------*/
-
     position.w = 100;
     position.h = 100;
 
@@ -243,6 +228,12 @@ void jouer(SDL_Renderer *render){
     backRect.h = 720;
     backRect.x = 0;
     backRect.y = 0;
+
+    portes[OUTSIDE].x = 19;
+    portes[OUTSIDE].y = 31;
+
+    portes[HOME].x = 101;
+    portes[HOME].y = 90;
 
     /*-----------------------------*/
 
@@ -343,8 +334,6 @@ void jouer(SDL_Renderer *render){
 
                         case SDLK_TAB: inv = inv ? false : true; break;
 
-                        case SDLK_r: back = back ? false : true; break;
-
                         default: break;
                     }; break;
                 case SDL_KEYUP:
@@ -359,50 +348,74 @@ void jouer(SDL_Renderer *render){
             }
         }
 
-        if(player->vel && (SDL_GetTicks() - walking >= FPS)){
-            switch(player->direction){
-                case HAUT: player->position.y--; walking = SDL_GetTicks(); break;
-                case BAS: player->position.y++; walking = SDL_GetTicks(); break;
-                case GAUCHE: player->position.x--; walking = SDL_GetTicks(); break;
-                case DROITE: player->position.x++; walking = SDL_GetTicks(); break;
+        if(verife_porte(portes[player->local], player)){
+            player->local = player->local == OUTSIDE ? HOME : OUTSIDE;
+            player->position.x = portes[player->local].x;
+            player->position.y = portes[player->local].y;
+            switch(player->local){
+                case OUTSIDE: player->position.y += 2; break;
+                case HOME: player->position.y -= 2; break;
                 default: break;
             }
         }
 
-        //Affichage de tous les éléments sur la carte
-        if(SDL_RenderCopy(render, screenAct, NULL, &backRect) != 0){
-            SDL_Log("Erreur lors de l'affichage à l'écran");
-        }
-
-        if(tiles->nb_elem > 0){
-            for(i = 0; i < tiles->nb_elem; i++){
-                tempTile = tiles->tiles[i];
-
-                position.x = tempTile->position.x * STEP;
-                position.y = tempTile->position.y * STEP;
-
-                if(tempTile->tTile != NULL){
-                    if(SDL_RenderCopy(render, tempTile->tTile, NULL, &position) != 0){
-                        SDL_Log("Erreur lors de l'affichage à l'écran");
-                    }
+        if(player->vel && (SDL_GetTicks() - walking >= FPS)){
+            if((player->local == HOME && ((player->position.x >= 82 && player->position.x <= 157) && (player->position.y >= 33 && player->position.y <= 90))) || player->local == OUTSIDE){
+                switch(player->direction){
+                    case HAUT: player->position.y--; walking = SDL_GetTicks(); break;
+                    case BAS: player->position.y++; walking = SDL_GetTicks(); break;
+                    case GAUCHE: player->position.x--; walking = SDL_GetTicks(); break;
+                    case DROITE: player->position.x++; walking = SDL_GetTicks(); break;
+                    default: break;
                 }
-                tempTile = NULL;
+            }
+            else{
+                switch(player->direction){
+                    case HAUT: player->position.y += 2; walking = SDL_GetTicks(); break;
+                    case BAS: player->position.y -= 2; walking = SDL_GetTicks(); break;
+                    case GAUCHE: player->position.x += 2; walking = SDL_GetTicks(); break;
+                    case DROITE: player->position.x -= 2; walking = SDL_GetTicks(); break;
+                    default: break;
+                }
             }
         }
 
-        if(plantes->nb_elem > 0){
-            for(i = 0; i < plantes->nb_elem; i++){
-                tempPlante = plantes->plantes[i];
+        //Affichage de tous les éléments sur la carte
+        if(SDL_RenderCopy(render, tBackground[player->local], NULL, &backRect) != 0){
+            SDL_Log("Erreur lors de l'affichage à l'écran");
+        }
 
-                position.x = tempPlante->position.x * STEP;
-                position.y = tempPlante->position.y * STEP;
+        if(player->local == OUTSIDE){
+            if(tiles->nb_elem > 0){
+                for(i = 0; i < tiles->nb_elem; i++){
+                    tempTile = tiles->tiles[i];
 
-                if(tempPlante->tPlante[tempPlante->state] != NULL){
-                    if(SDL_RenderCopy(render, tempPlante->tPlante[tempPlante->state], NULL, &position) != 0){
-                        SDL_Log("Erreur lors de l'affichage à l'écran");
+                    position.x = tempTile->position.x * STEP;
+                    position.y = tempTile->position.y * STEP;
+
+                    if(tempTile->tTile != NULL){
+                        if(SDL_RenderCopy(render, tempTile->tTile, NULL, &position) != 0){
+                            SDL_Log("Erreur lors de l'affichage à l'écran");
+                        }
                     }
+                    tempTile = NULL;
                 }
-                tempTile = NULL;
+            }
+
+            if(plantes->nb_elem > 0){
+                for(i = 0; i < plantes->nb_elem; i++){
+                    tempPlante = plantes->plantes[i];
+
+                    position.x = tempPlante->position.x * STEP;
+                    position.y = tempPlante->position.y * STEP;
+
+                    if(tempPlante->tPlante[tempPlante->state] != NULL){
+                        if(SDL_RenderCopy(render, tempPlante->tPlante[tempPlante->state], NULL, &position) != 0){
+                            SDL_Log("Erreur lors de l'affichage à l'écran");
+                        }
+                    }
+                    tempTile = NULL;
+                }
             }
         }
 

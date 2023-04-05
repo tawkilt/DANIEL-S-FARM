@@ -35,6 +35,7 @@ typedef struct player_s{
 
     int inventaire[5];
     int money;
+    int local;
 
     SDL_Surface *sPerso; //Sprites du personnage
     SDL_Texture *tPerso;
@@ -48,7 +49,7 @@ typedef struct player_s{
 
     int direction; //Direction dans laquelle le personnage regarde
 
-    bool vel; //Vitesse x et y du personnage
+    bool vel; //Vitesse du personnage
 
     int frame;
     int last_frame;
