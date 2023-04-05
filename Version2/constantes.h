@@ -16,12 +16,14 @@
 #define PERS_WIDTH 48
 #define PERS_HEIGHT 48
 
-#define ANIM 500
+#define ANIM 250
+#define FPS 30
 
 enum {DROITE = 0, GAUCHE, BAS, HAUT};
 enum {NEW, SEMI, FULL, PLANT, DEAD};
 enum {NOTHING, TOOL, SEED};
 enum {GRASS, DIRT};
+enum {OUTSIDE, HOME};
 
 typedef enum tool_s {hoe, scythe, can} tool_t; //Tous les outils
 typedef enum seed_s {cauliflower, melon, potato, pumpkin, tomato} seed_t; //Tous les types de graines/plantes

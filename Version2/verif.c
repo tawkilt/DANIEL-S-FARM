@@ -8,6 +8,10 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+bool verife_position(SDL_Rect const r1, SDL_Rect const r2){
+    return(r1.x == r2.x && r1.y == r2.y);
+}
+
 int verife_tile(player_t * const player, listeT_t * const tiles){
     SDL_Rect dif;
     int i;

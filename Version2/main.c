@@ -20,7 +20,7 @@ int main(int argc,char *argv[]){
 	}
 
     SDL_Window *win = NULL;
-    win = SDL_CreateWindow("Daniels' Valley", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN);
+    win = SDL_CreateWindow("Daniels' Farm", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN);
 
     if(win){
         //Création d'un render un des positions du personnage

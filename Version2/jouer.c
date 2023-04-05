@@ -29,8 +29,11 @@ void jouer(SDL_Renderer *render){
     seed_t graineAct = cauliflower;
 
     SDL_Rect position, backRect, contour, inventory, boite, coin;
-    SDL_Surface *sBackground = NULL;
-    SDL_Texture *tBackground = NULL;
+
+    SDL_Surface *sBackground[2];
+    SDL_Texture *tBackground[2];
+    SDL_Texture *screenAct = NULL;
+
     SDL_Texture *persoActuel = NULL;
 
     SDL_Surface * sFrames[3];
@@ -57,11 +60,16 @@ void jouer(SDL_Renderer *render){
     int i, j;
     bool inv = false;
 
+    int walking = SDL_GetTicks();
+
+    bool back = true;
+
     char * text = malloc(sizeof(char));
 
     //Initialisation des sprites
 
-    sBackground = IMG_Load("sprites/map/map.png");
+    sBackground[OUTSIDE] = IMG_Load("sprites/map/map.png");
+    sBackground[HOME] = IMG_Load("sprites/map/map.png");
 
     player->sPerso = IMG_Load("sprites/player/bitmap.png");
 
@@ -136,9 +144,13 @@ void jouer(SDL_Renderer *render){
     SDL_FreeSurface(player->sPerso);
     player->sPerso = NULL;
 
-    tBackground = SDL_CreateTextureFromSurface(render, sBackground);
-    SDL_FreeSurface(sBackground);
-    sBackground = NULL;
+    tBackground[OUTSIDE] = SDL_CreateTextureFromSurface(render, sBackground[OUTSIDE]);
+    SDL_FreeSurface(sBackground[OUTSIDE]);
+    sBackground[OUTSIDE] = NULL;
+
+    tBackground[HOME] = SDL_CreateTextureFromSurface(render, sBackground[HOME]);
+    SDL_FreeSurface(sBackground[HOME]);
+    sBackground[HOME] = NULL;
 
     /*-----------------------------*/
 
@@ -174,7 +186,9 @@ void jouer(SDL_Renderer *render){
     SDL_FreeSurface(sCoin);
     sCoin = NULL;
 
-    //SDL_RenderClear(render);
+    /*-----------------------------*/
+
+    screenAct = tBackground[OUTSIDE];
 
     persoActuel = player->tPerso;
     if(persoActuel == NULL){
@@ -184,8 +198,8 @@ void jouer(SDL_Renderer *render){
     player->direction = BAS;
     player->frame = 0;
     
-    player->position.x = 0;
-    player->position.y = 0;
+    player->position.x = 19;
+    player->position.y = 35;
 
     for(i = 0; i < 5; i++){
         player->inventaire[i] = 0;
@@ -292,10 +306,10 @@ void jouer(SDL_Renderer *render){
                         case SDLK_ESCAPE: is_running = false; break;
 
                         //Déplacement du personnage
-                        case SDLK_z: player->direction = HAUT; player->vel = true; deplacerPers(player); break;
-                        case SDLK_s: player->direction = BAS; player->vel = true; deplacerPers(player); break;
-                        case SDLK_q: player->direction = GAUCHE; player->vel = true; deplacerPers(player); break;
-                        case SDLK_d: player->direction = DROITE; player->vel = true; deplacerPers(player); break;
+                        case SDLK_z: player->direction = HAUT; player->vel = true; /*deplacerPers(player);*/ break;
+                        case SDLK_s: player->direction = BAS; player->vel = true; /*deplacerPers(player);*/ break;
+                        case SDLK_q: player->direction = GAUCHE; player->vel = true; /*deplacerPers(player);*/ break;
+                        case SDLK_d: player->direction = DROITE; player->vel = true; /*deplacerPers(player);*/ break;
 
                         //Action performée
                         case SDLK_e: if(SDL_GetTicks() - player->last_action > player->cooldown){
@@ -329,6 +343,8 @@ void jouer(SDL_Renderer *render){
 
                         case SDLK_TAB: inv = inv ? false : true; break;
 
+                        case SDLK_r: back = back ? false : true; break;
+
                         default: break;
                     }; break;
                 case SDL_KEYUP:
@@ -343,8 +359,18 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        if(player->vel && (SDL_GetTicks() - walking >= FPS)){
+            switch(player->direction){
+                case HAUT: player->position.y--; walking = SDL_GetTicks(); break;
+                case BAS: player->position.y++; walking = SDL_GetTicks(); break;
+                case GAUCHE: player->position.x--; walking = SDL_GetTicks(); break;
+                case DROITE: player->position.x++; walking = SDL_GetTicks(); break;
+                default: break;
+            }
+        }
+
         //Affichage de tous les éléments sur la carte
-        if(SDL_RenderCopy(render, tBackground, NULL, &backRect) != 0){
+        if(SDL_RenderCopy(render, screenAct, NULL, &backRect) != 0){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
@@ -514,7 +540,8 @@ void jouer(SDL_Renderer *render){
     free(plantes);
     plantes = NULL;
 
-    SDL_DestroyTexture(tBackground);
+    SDL_DestroyTexture(tBackground[OUTSIDE]);
+    SDL_DestroyTexture(tBackground[HOME]);
 
     for(i = 0; i < 3; i++){
         SDL_DestroyTexture(tFrames[i]);
