@@ -8,6 +8,17 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+/**
+* \file init.c
+* \brief Initialiser les tiles du carte
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
+/**
+*\fn tile_t * init_tile(SDL_Renderer * render, int x, int y)
+*/
+
 tile_t * init_tile(SDL_Renderer * render, int x, int y){
     tile_t * tile = malloc(sizeof(tile_t));
 
@@ -28,6 +39,9 @@ tile_t * init_tile(SDL_Renderer * render, int x, int y){
     return(tile);
 }
 
+/**
+*\fn void liste_tiles(SDL_Renderer * render, listeT_t * tiles)
+*/
 void liste_tiles(SDL_Renderer * render, listeT_t * tiles){
     int i, j;
     //tile_t * temp = malloc(sizeof(tile_t));

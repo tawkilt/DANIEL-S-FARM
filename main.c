@@ -10,7 +10,17 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
+/**
+* \file main.c
+* \brief Main
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
 
+/**
+*\fn int main(int argc,char *argv[])
+*/
 
 int main(int argc,char *argv[]){
     

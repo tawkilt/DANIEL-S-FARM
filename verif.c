@@ -7,11 +7,22 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-
+/**
+* \file verif.c
+* \brief Vérification
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
+/**
+*\fn bool verife_position(SDL_Rect const r1, SDL_Rect const r2)
+*/
 bool verife_position(SDL_Rect const r1, SDL_Rect const r2){
     return(r1.x == r2.x && r1.y == r2.y);
 }
-
+/**
+*\fn int verife_tile(player_t * const player, listeT_t * const tiles)
+*/
 int verife_tile(player_t * const player, listeT_t * const tiles){
     SDL_Rect dif;
     int i;
@@ -27,7 +38,9 @@ int verife_tile(player_t * const player, listeT_t * const tiles){
     }
     return -1;
 }
-
+/**
+*\fn bool verife_porte(SDL_Rect const porte, player_t * const player)
+*/
 bool verife_porte(SDL_Rect const porte, player_t * const player){
     switch(player->local){
         case OUTSIDE: if(player->position.x >= 16 && player->position.x <= 22 && player->position.y == 31) return true; break;
@@ -36,7 +49,9 @@ bool verife_porte(SDL_Rect const porte, player_t * const player){
     }
     return false;
 }
-
+/**
+*\fn bool verife_bed(player_t * const player)
+*/
 bool verife_bed(player_t * const player){
     if(player->local == HOME){
         return((player->position.x >= 141 && player->position.x <= 154) && (player->position.y >= 84 && player->position.y <= 89));

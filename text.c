@@ -8,7 +8,17 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+/**
+* \file text.c
+* \brief Afficher les texts
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
 
+/**
+*\fn int afficheText(SDL_Renderer * render, SDL_Rect boite, char * message, TTF_Font * police)
+*/
 
 int afficheText(SDL_Renderer * render, SDL_Rect boite, char * message, TTF_Font * police){
     SDL_Color blanc = {255, 255, 255};

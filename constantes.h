@@ -18,7 +18,12 @@
 
 #define ANIM 250
 #define FPS 30
-
+/**
+* \file constantes.h
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
 enum {DROITE = 0, GAUCHE, BAS, HAUT};
 enum {NEW, SEMI, FULL, PLANT, DEAD};
 enum {NOTHING, TOOL, SEED};
@@ -28,7 +33,10 @@ enum {OUTSIDE, HOME};
 typedef enum tool_s {hoe, scythe, can} tool_t; //Tous les outils
 typedef enum seed_s {cauliflower, melon, potato, pumpkin, tomato} seed_t; //Tous les types de graines/plantes
 
-//Structure avec les données du personnage
+/**
+* \struct player_t
+* \brief Structure avec les données du personnage 
+*/
 typedef struct player_s{
     SDL_Rect position; //Position du personnage sur la carte
     SDL_Rect source; //Frame à sélectionner
@@ -57,7 +65,10 @@ typedef struct player_s{
     int last_frame;
 }player_t;
 
-//Structure avec les données d'une plante
+/**
+* \struct player_t
+* \brief Structure avec les données d'une plante
+*/
 typedef struct plante_s{
     SDL_Rect position; //Position de la plante sur la carte
 
@@ -69,7 +80,10 @@ typedef struct plante_s{
     bool arrose; //État de l'arrosage
 }plante_t;
 
-//Structure avec les données d'une tile
+/**
+* \struct tile_t
+* \brief Structure avec les données d'une tile
+*/
 typedef struct tile_s{
     SDL_Rect position; //Position de la tile sur la carte
 
@@ -81,13 +95,17 @@ typedef struct tile_s{
     int jours; //Jours passés depuis qu'elle est une tile de terre
 }tile_t;
 
-//Structure du tableau des plantes
+/**
+* \struct listeP_t
+*/
 typedef struct listeP_s{
     int nb_elem;
     plante_t * plantes[50];
 }listeP_t;
 
-//Structure du tableau des tuiles
+/**
+* \struct listeT_t
+*/
 typedef struct listeT_s{
     int nb_elem;
     tile_t * tiles[50];

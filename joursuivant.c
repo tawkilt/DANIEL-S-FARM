@@ -8,9 +8,18 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+/**
+* \file joursuivant.c
+* \brief Changement de jour
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
 
-
-//Fonction qui va passer au jour suivant (et donc changer les états des plantes et des tiles)
+/**
+*\fn void jour_suivant(SDL_Renderer * render, player_t * const player, listeP_t * plantes, listeT_t * tiles)
+*\brief Fonction qui va passer au jour suivant (et donc changer les états des plantes et des tiles)
+*/
 
 void jour_suivant(SDL_Renderer * render, player_t * const player, listeP_t * plantes, listeT_t * tiles){
     int i;

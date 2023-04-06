@@ -16,7 +16,17 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
-//Fonction de jeu principal, avec une boucle qui vérifie que le jeu n'est pas fermé
+/**
+* \file jouer.c
+* \brief Jeu
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
+/**
+*\fn void jouer(SDL_Renderer *render)
+*\brief Fonction de jeu principal, avec une boucle qui vérifie que le jeu n'est pas fermé
+*/
 
 void jouer(SDL_Renderer *render){
     player_t *player = malloc(sizeof(player_t));

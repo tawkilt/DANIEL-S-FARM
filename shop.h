@@ -1,16 +1,16 @@
 #ifndef SHOP_H_INCLUDED
 #define SHOP_H_INCLUDED
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include "constantes.h"
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-
+/**
+* \file shop.h
+* \author Henzo & Serda & Ania & Rabia
+* \version 0.1
+* \date 15 mars 2023
+*/
+/**
+*\fn bool shop(SDL_Rect const shop, player_t * const player)
+*/
 bool shop(SDL_Rect const, player_t * const);
 
 #endif
