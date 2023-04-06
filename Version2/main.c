@@ -8,8 +8,31 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
+
+
 
 int main(int argc,char *argv[]){
+    
+    // Initialisation de SDL
+    SDL_Init(SDL_INIT_AUDIO);
+
+    // Initialisation de SDL_mixer
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+
+    // Chargement de la musique
+    Mix_Music* music = Mix_LoadMUS("sounds/music.mp3");
+
+    // Vérification que la musique a été chargée correctement
+    if (!music) {
+        printf("Erreur de chargement de la musique : %s\n", Mix_GetError());
+        return 1;
+    }
+
+    // Lecture de la musique en boucle
+    Mix_PlayMusic(music, -1);
+
+    // Boucle principale du programme
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         printf("error initializing SDL: %s\n", SDL_GetError());
     }
@@ -28,7 +51,15 @@ int main(int argc,char *argv[]){
         jouer(render);
         SDL_DestroyRenderer(render);
     }
+    
+    Mix_FreeMusic(music);
+    Mix_CloseAudio();
     SDL_DestroyWindow(win);
     SDL_Quit();
+
+    // Libération de la musique et de SDL_mixer
+    
+
+    
     return 0;
 }

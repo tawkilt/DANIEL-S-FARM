@@ -43,6 +43,9 @@ void jouer(SDL_Renderer *render){
     SDL_Surface * sInv = NULL;
     SDL_Texture * tInv = NULL;
 
+    SDL_Surface * sFrameSelect = NULL;
+    SDL_Texture * tFrameSelect = NULL;
+
     SDL_Surface * sCoin = NULL;
     SDL_Texture * tCoin = NULL;
 
@@ -57,16 +60,18 @@ void jouer(SDL_Renderer *render){
     SDL_Rect frames[3];
     SDL_Rect invent[PLANTE];
 
+    SDL_Rect selection;
+
     SDL_Rect portes[2];
 
     TTF_Font * police = NULL;
 
-    int i, j;
+    int i, j, tileActuelle;
     bool inv = false;
 
     int walking = SDL_GetTicks();
 
-    char * text = malloc(sizeof(char));
+    char * text = malloc(sizeof(char) * 50);
 
     //Initialisation des sprites
 
@@ -117,6 +122,10 @@ void jouer(SDL_Renderer *render){
 
     /*-----------------------------*/
 
+    sFrameSelect = IMG_Load("sprites/frames/frameSelect.png");
+
+    /*-----------------------------*/
+
     sInv = IMG_Load("sprites/frames/inventory.png");
 
     /*-----------------------------*/
@@ -141,6 +150,10 @@ void jouer(SDL_Renderer *render){
     tContour = SDL_CreateTextureFromSurface(render, sContour);
     SDL_FreeSurface(sContour);
     sContour = NULL;
+
+    tFrameSelect = SDL_CreateTextureFromSurface(render, sFrameSelect);
+    SDL_FreeSurface(sFrameSelect);
+    sFrameSelect = NULL;
 
     player->tPerso = SDL_CreateTextureFromSurface(render, player->sPerso);
     SDL_FreeSurface(player->sPerso);
@@ -356,6 +369,8 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        tileActuelle = verife_tile(player, tiles);
+
         if(verife_porte(portes[player->local], player)){
             player->local = player->local == OUTSIDE ? HOME : OUTSIDE;
             player->position.x = portes[player->local].x;
@@ -407,6 +422,17 @@ void jouer(SDL_Renderer *render){
                         }
                     }
                     tempTile = NULL;
+                }
+            }
+
+            if(tileActuelle >= 0){
+                selection = tiles->tiles[tileActuelle]->position;
+
+                position.x = selection.x * STEP;
+                position.y = selection.y * STEP;
+
+                if(SDL_RenderCopy(render, tFrameSelect, NULL, &position) != 0){
+                    SDL_Log("Erreur lors de l'affichage à l'écran");
                 }
             }
 
@@ -513,6 +539,11 @@ void jouer(SDL_Renderer *render){
             coin.y -= 13;
             afficheText(render, coin, text, police);
         }
+
+        sprintf(text, "Jour %d", player->jours);
+        boite.x = 1100;
+        boite.y = 20;
+        afficheText(render, boite, text, police);
 
         
         //printf("%s\n", text);

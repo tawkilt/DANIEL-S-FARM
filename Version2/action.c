@@ -108,31 +108,27 @@ void becher(SDL_Renderer * render, player_t * const player, tile_t * tile){
 
 //Fonction qui va supprimer une ou plusieurs plante(s) de la liste de plantes (et donc de la carte)
 
-void faucher(player_t * const player, listeP_t * plantes){
+void faucher(player_t * const player, listeP_t * plantes, tile_t * const tile){
+    
     plante_t * temp = malloc(sizeof(plante_t));
-    SDL_Rect dif;
+    plante_t * suivant = malloc(sizeof(plante_t));
     int i, j;
     int elements = plantes->nb_elem;
 
-    //Vérification pour savoir si il y a plusieurs plantes que l'on peut enlever en même temps
-
     for(i = 0; i < elements; i++){
         temp = plantes->plantes[i];
+        if(tile->position.x == temp->position.x && tile->position.y == temp->position.y){
 
-        dif.x = player->position.x - temp->position.x;
-        dif.y = player->position.y - temp->position.y;
-        if((((dif.x >= -9 && dif.x <= -4) && (dif.y >= -5 && dif.y <= -3)) && player->direction == DROITE) ||
-            (((dif.x >= 4 && dif.x <= 10) && (dif.y >= -5 && dif.y <= -3)) && player->direction == GAUCHE) ||
-            (((dif.x >= -2 && dif.x <= 3) && (dif.y >= -4 && dif.y <= 0)) && player->direction == HAUT) ||
-            (((dif.x >= -2 && dif.x <= 3) && (dif.y >= -12 && dif.y <= -8)) && player->direction == BAS))
-        {
-            for(j = 0; j < PLANTE; j++){
-                SDL_DestroyTexture(temp->tPlante[i]);
-                temp->tPlante[i] = NULL;
+            for(j = i; j < elements; j++){
+                suivant = plantes->plantes[j];
+                *temp = *suivant;
+                temp = plantes->plantes[j];
             }
-            temp = NULL;
+
+            free(plantes->plantes[elements - 1]);
             plantes->nb_elem--;
         }
+        suivant = NULL;
         temp = NULL;
     }
 }
@@ -166,6 +162,7 @@ void arroser(SDL_Renderer * render, player_t * const player, tile_t * tile, list
 void recolter(SDL_Renderer * render, player_t * player, tile_t * tile, listeP_t * plantes){
 
     plante_t * temp = malloc(sizeof(plante_t));
+    plante_t * suivant = malloc(sizeof(plante_t));
     int i, j;
     int elements = plantes->nb_elem;
 
@@ -174,13 +171,16 @@ void recolter(SDL_Renderer * render, player_t * player, tile_t * tile, listeP_t 
         if(tile->position.x == temp->position.x && tile->position.y == temp->position.y && temp->state == FULL){
             player->inventaire[temp->type]++;
 
-            for(j = 0; j < PLANTE; j++){
-                SDL_DestroyTexture(temp->tPlante[j]);
-                temp->tPlante[i] = NULL;
+            for(j = i; j < elements; j++){
+                suivant = plantes->plantes[j];
+                *temp = *suivant;
+                temp = plantes->plantes[j];
             }
-            temp = NULL;
+
+            free(plantes->plantes[elements - 1]);
             plantes->nb_elem--;
         }
+        suivant = NULL;
         temp = NULL;
     }
 }
@@ -196,7 +196,7 @@ void action(SDL_Renderer * render, player_t * player, listeT_t * tiles, listeP_t
                 case TOOL:
                     switch(player->tool){
                         case hoe: if(tiles->tiles[i]->type == GRASS) becher(render, player, tiles->tiles[i]); break;
-                        case scythe: faucher(player, plantes); break;
+                        case scythe: faucher(player, plantes, tiles->tiles[i]); break;
                         case can: arroser(render, player, tiles->tiles[i], plantes); break;
                         default: break;
                     }; break;
