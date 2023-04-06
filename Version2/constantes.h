@@ -37,6 +37,8 @@ typedef struct player_s{
     int money;
     int local;
 
+    int jours;
+
     SDL_Surface *sPerso; //Sprites du personnage
     SDL_Texture *tPerso;
 

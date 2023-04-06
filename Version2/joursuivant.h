@@ -3,6 +3,6 @@
 
 
 #include "constantes.h"
-void jour_suivant(SDL_Renderer * , player_t * const , listeP_t * );
+void jour_suivant(SDL_Renderer * , player_t * const , listeP_t * , listeT_t * );
 
 #endif

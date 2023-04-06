@@ -36,3 +36,10 @@ bool verife_porte(SDL_Rect const porte, player_t * const player){
     }
     return false;
 }
+
+bool verife_bed(player_t * const player){
+    if(player->local == HOME){
+        return((player->position.x >= 141 && player->position.x <= 154) && (player->position.y >= 84 && player->position.y <= 89));
+    }
+    return false;
+}

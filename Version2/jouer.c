@@ -207,6 +207,8 @@ void jouer(SDL_Renderer *render){
 
     player->money = 20;
 
+    player->jours = 0;
+
     player->local = OUTSIDE;
 
     player->cooldown = 500;
@@ -307,8 +309,6 @@ void jouer(SDL_Renderer *render){
                             action(render, player, tiles, plantes);
                             player->last_action = SDL_GetTicks();
                         }; break;
-
-                        case SDLK_a: jour_suivant(render, player, plantes); break;
 
                         case SDLK_RIGHT: if(player->holding == SEED){
                             player->holding = NOTHING;

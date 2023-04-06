@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "constantes.h"
+#include "joursuivant.h"
 #include "verif.h"
 
 #include <SDL2/SDL.h>
@@ -132,6 +133,7 @@ void faucher(player_t * const player, listeP_t * plantes){
             temp = NULL;
             plantes->nb_elem--;
         }
+        temp = NULL;
     }
 }
 
@@ -149,6 +151,13 @@ void arroser(SDL_Renderer * render, player_t * const player, tile_t * tile, list
                 break;
             }
         }
+        tile->sTile = IMG_Load("dirtArrose.png");
+
+        tile->tTile = SDL_CreateTextureFromSurface(render, tile->sTile);
+
+        SDL_FreeSurface(tile->sTile);
+
+        tile->jours = 0;
     }
 }
 
@@ -172,6 +181,7 @@ void recolter(SDL_Renderer * render, player_t * player, tile_t * tile, listeP_t 
             temp = NULL;
             plantes->nb_elem--;
         }
+        temp = NULL;
     }
 }
 
@@ -180,18 +190,25 @@ void recolter(SDL_Renderer * render, player_t * player, tile_t * tile, listeP_t 
 void action(SDL_Renderer * render, player_t * player, listeT_t * tiles, listeP_t * plantes){
     int i;
 
-    if((i = verife_tile(player, tiles)) >= 0){
-        switch(player->holding){
-            case TOOL:
-                switch(player->tool){
-                    case hoe: if(tiles->tiles[i]->type == GRASS) becher(render, player, tiles->tiles[i]); break;
-                    case scythe: faucher(player, plantes); break;
-                    case can: arroser(render, player, tiles->tiles[i], plantes); break;
-                    default: break;
-                }; break;
-            case SEED: if(tiles->tiles[i]->type == DIRT) planter(render, player, plantes, tiles->tiles[i]); break;
-            case NOTHING : recolter(render, player, tiles->tiles[i], plantes); break;
-            default: break;
+    if(player->local == OUTSIDE){
+        if((i = verife_tile(player, tiles)) >= 0){
+            switch(player->holding){
+                case TOOL:
+                    switch(player->tool){
+                        case hoe: if(tiles->tiles[i]->type == GRASS) becher(render, player, tiles->tiles[i]); break;
+                        case scythe: faucher(player, plantes); break;
+                        case can: arroser(render, player, tiles->tiles[i], plantes); break;
+                        default: break;
+                    }; break;
+                case SEED: if(tiles->tiles[i]->type == DIRT) planter(render, player, plantes, tiles->tiles[i]); break;
+                case NOTHING : recolter(render, player, tiles->tiles[i], plantes); break;
+                default: break;
+            }
+        }
+    }
+    else{
+        if(verife_bed(player)){
+            jour_suivant(render, player, plantes, tiles);
         }
     }
 }
