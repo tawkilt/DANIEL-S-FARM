@@ -10,6 +10,7 @@
 #include "init.h"
 #include "verif.h"
 #include "joursuivant.h"
+#include "shop.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -28,13 +29,16 @@ void jouer(SDL_Renderer *render){
     tool_t outilAct = hoe;
     seed_t graineAct = cauliflower;
 
-    SDL_Rect position, backRect, contour, inventory, boite, coin;
+    SDL_Rect position, backRect, contour, inventory, boite, coin, selection, magasin;
 
     SDL_Surface *sBackground[2];
     SDL_Texture *tBackground[2];
     SDL_Texture *screenAct = NULL;
 
     SDL_Texture *persoActuel = NULL;
+
+    SDL_Surface * sDaniella = NULL;
+    SDL_Texture * tDaniella = NULL;
 
     SDL_Surface * sFrames[3];
     SDL_Texture * tFrames[3];
@@ -60,14 +64,13 @@ void jouer(SDL_Renderer *render){
     SDL_Rect frames[3];
     SDL_Rect invent[PLANTE];
 
-    SDL_Rect selection;
-
     SDL_Rect portes[2];
 
     TTF_Font * police = NULL;
 
     int i, j, tileActuelle;
     bool inv = false;
+    bool achat = false;
 
     int walking = SDL_GetTicks();
 
@@ -77,6 +80,8 @@ void jouer(SDL_Renderer *render){
 
     sBackground[OUTSIDE] = IMG_Load("sprites/map/map.png");
     sBackground[HOME] = IMG_Load("sprites/map/home.png");
+
+    sDaniella = IMG_Load("sprites/player/daniella.png");
 
     player->sPerso = IMG_Load("sprites/player/bitmap.png");
 
@@ -154,6 +159,10 @@ void jouer(SDL_Renderer *render){
     tFrameSelect = SDL_CreateTextureFromSurface(render, sFrameSelect);
     SDL_FreeSurface(sFrameSelect);
     sFrameSelect = NULL;
+
+    tDaniella = SDL_CreateTextureFromSurface(render, sDaniella);
+    SDL_FreeSurface(sDaniella);
+    sDaniella = NULL;
 
     player->tPerso = SDL_CreateTextureFromSurface(render, player->sPerso);
     SDL_FreeSurface(player->sPerso);
@@ -244,6 +253,9 @@ void jouer(SDL_Renderer *render){
 
     /*-----------------------------*/
 
+    magasin.x = 200;
+    magasin.y = 50;
+
     position.w = 100;
     position.h = 100;
 
@@ -327,8 +339,12 @@ void jouer(SDL_Renderer *render){
 
                         //Action performée
                         case SDLK_e: if(SDL_GetTicks() - player->last_action > player->cooldown){
-                            action(render, player, tiles, plantes);
-                            player->last_action = SDL_GetTicks();
+                            achat = shop(magasin, player);
+                            if(achat);
+                            else{
+                                action(render, player, tiles, plantes);
+                                player->last_action = SDL_GetTicks();
+                            }
                         }; break;
 
                         case SDLK_RIGHT: if(player->holding == SEED){
@@ -481,6 +497,15 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
+        if(player->local == OUTSIDE){
+            position.x = magasin.x * STEP;
+            position.y = magasin.y * STEP;
+
+            if(SDL_RenderCopy(render, tDaniella, NULL, &position) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
+        }
+
         for(i = 0; i < 3; i++){
             if(SDL_RenderCopy(render, tFrames[i], NULL, &frames[i]) != 0){
                 SDL_Log("Erreur lors de l'affichage à l'écran");
@@ -538,6 +563,18 @@ void jouer(SDL_Renderer *render){
             coin.x += 90;
             coin.y -= 13;
             afficheText(render, coin, text, police);
+        }
+
+        if(achat){
+            if(SDL_RenderCopy(render, tInv, NULL, &inventory) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
+
+            for(i = 0; i < PLANTE; i++){
+                if(SDL_RenderCopy(render, tSeeds[i], NULL, &invent[i]) != 0){
+                    SDL_Log("Erreur lors de l'affichage à l'écran");
+                }
+            }
         }
 
         sprintf(text, "Jour %d", player->jours);

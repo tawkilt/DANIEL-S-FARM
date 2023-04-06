@@ -11,8 +11,8 @@ INCS=-I${SDL_INC_DIR}
 
 all : main
 
-main: action.o changeroutils.o deplacer.o jouer.o joursuivant.o text.o init.o verif.o main.o
-	$(CCLNK) $(CFLAGS) -o main action.o changeroutils.o deplacer.o jouer.o joursuivant.o text.o init.o verif.o main.o ${LIBS} ${INCS}
+main: action.o changeroutils.o deplacer.o jouer.o joursuivant.o text.o init.o verif.o shop.o main.o
+	$(CCLNK) $(CFLAGS) -o main action.o changeroutils.o deplacer.o jouer.o joursuivant.o text.o init.o verif.o shop.o main.o ${LIBS} ${INCS}
 main.o : main.c
 	$(CCOBJ) $(CFLAGS) -o main.o main.c -I./ ${LIBS} ${INCS}
 
@@ -32,7 +32,8 @@ init.o : init.c init.h
 		$(CCOBJ) $(CFLAGS) init.c -o init.o -I./
 verif.o : verif.c verif.h
 		$(CCOBJ) $(CFLAGS) verif.c -o verif.o -I./
-
+shop.o : shop.c shop.h
+		$(CCOBJ) $(CFLAGS) shop.c -o shop.o -I./
 
 clean:
 	rm -f *.o

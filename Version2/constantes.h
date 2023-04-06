@@ -81,11 +81,13 @@ typedef struct tile_s{
     int jours; //Jours passés depuis qu'elle est une tile de terre
 }tile_t;
 
+//Structure du tableau des plantes
 typedef struct listeP_s{
     int nb_elem;
     plante_t * plantes[50];
 }listeP_t;
 
+//Structure du tableau des tuiles
 typedef struct listeT_s{
     int nb_elem;
     tile_t * tiles[50];
