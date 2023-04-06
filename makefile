@@ -1,22 +1,42 @@
-CC=gcc
-FLAGS=-Wall -g
+CCOBJ=gcc -c
+CCLNK=gcc 
+CFLAGS=-Wall -g
 
 SDL_DIR=${HOME}/SDL2
 SDL_LIB_DIR=${SDL_DIR}/lib
 SDL_INC_DIR=${SDL_DIR}/include
 
-LIBS=-L${SDL_LIB_DIR} -lSDL2 -lSDL2_image -lSDL2_ttf
+LIBS=-L${SDL_LIB_DIR} -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 INCS=-I${SDL_INC_DIR}
-PROG=main
 
-all: main
+all : main
 
-main: main.o
-	${CC} -o main main.o ${LIBS} ${INCS} ${FLAGS}
+main: action.o changeroutils.o deplacer.o jouer.o joursuivant.o text.o init.o verif.o shop.o main.o
+	$(CCLNK) $(CFLAGS) -o main action.o changeroutils.o deplacer.o jouer.o joursuivant.o text.o init.o verif.o shop.o main.o ${LIBS} ${INCS}
+main.o : main.c
+	$(CCOBJ) $(CFLAGS) -o main.o main.c -I./ ${LIBS} ${INCS}
 
-main.o: main.c
-	${CC} -c main.c ${LIBS} ${INCS} ${FLAGS}
+action.o : action.c action.h
+		$(CCOBJ) $(CFLAGS)  action.c -o action.o -I./
+changeroutils.o : changeroutils.c changeroutils.h
+		$(CCOBJ) $(CFLAGS)  changeroutils.c -o changeroutils.o -I./
+deplacer.o : deplacer.c deplacer.h
+		$(CCOBJ) $(CFLAGS)  deplacer.c -o deplacer.o -I./
+jouer.o : jouer.c jouer.h
+		$(CCOBJ) $(CFLAGS) jouer.c -o jouer.o -I./
+joursuivant.o : joursuivant.c joursuivant.h
+		$(CCOBJ) $(CFLAGS)  joursuivant.c -o joursuivant.o -I./
+text.o : text.c text.h
+		$(CCOBJ) $(CFLAGS) text.c -o text.o -I./
+init.o : init.c init.h
+		$(CCOBJ) $(CFLAGS) init.c -o init.o -I./
+verif.o : verif.c verif.h
+		$(CCOBJ) $(CFLAGS) verif.c -o verif.o -I./
+shop.o : shop.c shop.h
+		$(CCOBJ) $(CFLAGS) shop.c -o shop.o -I./
 
 clean:
-	rm -f ${PROG}
 	rm -f *.o
+	rm -f main
+tests:
+	./main

@@ -9,13 +9,21 @@
 
 #define STEP 5
 #define PERSO 4
+#define FRAMES 3
 #define OUTIL 3
 #define PLANTE 5
 
-enum {BAS, GAUCHE, HAUT, DROITE};
+#define PERS_WIDTH 48
+#define PERS_HEIGHT 48
+
+#define ANIM 250
+#define FPS 30
+
+enum {DROITE = 0, GAUCHE, BAS, HAUT};
 enum {NEW, SEMI, FULL, PLANT, DEAD};
 enum {NOTHING, TOOL, SEED};
 enum {GRASS, DIRT};
+enum {OUTSIDE, HOME};
 
 typedef enum tool_s {hoe, scythe, can} tool_t; //Tous les outils
 typedef enum seed_s {cauliflower, melon, potato, pumpkin, tomato} seed_t; //Tous les types de graines/plantes
@@ -23,12 +31,16 @@ typedef enum seed_s {cauliflower, melon, potato, pumpkin, tomato} seed_t; //Tous
 //Structure avec les données du personnage
 typedef struct player_s{
     SDL_Rect position; //Position du personnage sur la carte
+    SDL_Rect source; //Frame à sélectionner
 
     int inventaire[5];
     int money;
+    int local;
 
-    SDL_Surface *sPerso[PERSO]; //Sprites du personnage
-    SDL_Texture *tPerso[PERSO];
+    int jours;
+
+    SDL_Surface *sPerso; //Sprites du personnage
+    SDL_Texture *tPerso;
 
     int holding; //Vérifie si il tient quelque chose et qu'est-ce qu'il tient
     tool_t tool;
@@ -38,6 +50,11 @@ typedef struct player_s{
     int last_action;
 
     int direction; //Direction dans laquelle le personnage regarde
+
+    bool vel; //Vitesse du personnage
+
+    int frame;
+    int last_frame;
 }player_t;
 
 //Structure avec les données d'une plante
@@ -64,11 +81,13 @@ typedef struct tile_s{
     int jours; //Jours passés depuis qu'elle est une tile de terre
 }tile_t;
 
+//Structure du tableau des plantes
 typedef struct listeP_s{
     int nb_elem;
     plante_t * plantes[50];
 }listeP_t;
 
+//Structure du tableau des tuiles
 typedef struct listeT_s{
     int nb_elem;
     tile_t * tiles[50];
