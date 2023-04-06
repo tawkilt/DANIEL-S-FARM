@@ -59,6 +59,8 @@ void jouer(SDL_Renderer *render){
 
     SDL_Rect portes[2];
 
+    TTF_Font * police = NULL;
+
     int i, j;
     bool inv = false;
 
@@ -185,6 +187,12 @@ void jouer(SDL_Renderer *render){
     tCoin = SDL_CreateTextureFromSurface(render, sCoin);
     SDL_FreeSurface(sCoin);
     sCoin = NULL;
+
+    /*-----------------------------*/
+
+    if ((police = TTF_OpenFont("sprites/font/font.ttf", 50)) == NULL){
+        SDL_Log("Erreur lors du chargement de la police");
+    }
 
     /*-----------------------------*/
 
@@ -480,7 +488,7 @@ void jouer(SDL_Renderer *render){
                 sprintf(text, "%d", player->inventaire[i]);
                 boite.x = invent[i].x + 88;
                 boite.y = 350;
-                afficheText(render, boite, text);
+                afficheText(render, boite, text, police);
             }
 
             coin = invent[potato];
@@ -503,7 +511,7 @@ void jouer(SDL_Renderer *render){
             coin = invent[potato];
             coin.x += 90;
             coin.y -= 13;
-            afficheText(render, coin, text);
+            afficheText(render, coin, text, police);
         }
 
         

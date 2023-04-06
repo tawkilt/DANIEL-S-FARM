@@ -10,15 +10,10 @@
 
 
 
-int afficheText(SDL_Renderer * render, SDL_Rect boite, char * message){
+int afficheText(SDL_Renderer * render, SDL_Rect boite, char * message, TTF_Font * police){
     SDL_Color blanc = {255, 255, 255};
     SDL_Surface * texte ;
     SDL_Texture * texte_tex ;
-    TTF_Font * police = NULL;
-
-    if ((police = TTF_OpenFont("sprites/font/font.ttf", 50)) == NULL){
-        SDL_Log("Erreur lors du chargement de la police");
-    }
 
     texte = TTF_RenderUTF8_Blended(police, message, blanc);
 
