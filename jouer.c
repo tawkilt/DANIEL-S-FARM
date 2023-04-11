@@ -474,6 +474,7 @@ void jouer(SDL_Renderer *render){
 
         tileActuelle = verife_tile(player, tiles);
 
+        //Vérifie si le joueur se trouve près d'une porte, et si oui change sa position pour correspondre à celle de l'autre porte
         if(verife_porte(portes[player->local], player)){
             player->local = player->local == OUTSIDE ? HOME : OUTSIDE;
             player->position.x = portes[player->local].x;
@@ -485,6 +486,7 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        //Permet de déplacer le joueur et si il est à l'intérieur, vérifie qu'il ne dépasse pas la limite des murs
         if(player->vel && (SDL_GetTicks() - walking >= FPS)){
             if((player->local == HOME && ((player->position.x >= 82 && player->position.x <= 157) && (player->position.y >= 33 && player->position.y <= 90))) || player->local == OUTSIDE){
                 switch(player->direction){
@@ -506,6 +508,7 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        //Transfert les plantes de l'inventaire vers le coffre de vente
         if(vente){
             for(i = 0; i < PLANTE; i++){
                 player->inventaireVente[i] = player->inventaire[i];
@@ -519,6 +522,7 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
+        //Affiche les tuiles et les plantes sur la carte si le joueur est à l'extérieur
         if(player->local == OUTSIDE){
             if(tiles->nb_elem > 0){
                 for(i = 0; i < tiles->nb_elem; i++){
@@ -564,6 +568,7 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        //Alterne entre les deux frames de mouvement si le joueur est en train de se déplacer
         if(player->vel){
             if(SDL_GetTicks() - player->last_frame >= ANIM){
                 if(player->frame == FRAMES - 1){
@@ -595,6 +600,7 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        //Calcule quelle partie de la bitmap le render doit avoir dépendant de la direction, de la frame qui doit être actuellement affichée et de la taille du personnage
         player->source.x = PERS_WIDTH * player->frame;
         player->source.y = PERS_HEIGHT * player->direction;
         player->source.h = PERS_HEIGHT;
@@ -607,6 +613,7 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
+        //Affichent les frames de sélection en bas de l'écran
         for(i = 0; i < 3; i++){
             if(SDL_RenderCopy(render, tFrames[i], NULL, &frames[i]) != 0){
                 SDL_Log("Erreur lors de l'affichage à l'écran");
@@ -625,6 +632,7 @@ void jouer(SDL_Renderer *render){
             SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
+        //Affiche l'inventaire si le joueur l'ouvre, en affichant le nombre de chaque plante qu'il a actuellement et son argent
         if(inv){
             if(SDL_RenderCopy(render, tInv, NULL, &inventory) != 0){
                 SDL_Log("Erreur lors de l'affichage à l'écran");
@@ -666,6 +674,7 @@ void jouer(SDL_Renderer *render){
             afficheText(render, coin, text, police);
         }
 
+        //Affiche l'interface du magasin si le joueur l'a ouvert
         if(achat){
             if(SDL_RenderCopy(render, tInv, NULL, &inventory) != 0){
                 SDL_Log("Erreur lors de l'affichage à l'écran");
@@ -695,11 +704,13 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        //Affiche le nombre de jours
         sprintf(text, "Jour %d", player->jours);
         boite.x = 1100;
         boite.y = 20;
         afficheText(render, boite, text, police);
 
+        //Affiche, pendant 10 secondes au lancement du jeu, les contrôles
         if(SDL_GetTicks() - debutJeu <= 10000){
             sprintf(text, "Mouvements");
 
@@ -734,6 +745,7 @@ void jouer(SDL_Renderer *render){
         SDL_RenderPresent(render);
     }
 
+    //Destruction de toutes les textures et libération de l'espace alloué
     SDL_DestroyTexture(player->tPerso);
     player->tPerso = NULL;
 
