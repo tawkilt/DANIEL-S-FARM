@@ -579,11 +579,6 @@ void jouer(SDL_Renderer *render){
             player->frame = 1;
         }
 
-        player->source.x = PERS_WIDTH * player->frame;
-        player->source.y = PERS_HEIGHT * player->direction;
-        player->source.h = PERS_HEIGHT;
-        player->source.w = PERS_WIDTH;
-
         if(player->local == OUTSIDE){
             position.x = magasin.x * STEP;
             position.y = magasin.y * STEP;
@@ -599,6 +594,11 @@ void jouer(SDL_Renderer *render){
                 SDL_Log("Erreur lors de l'affichage à l'écran");
             }
         }
+
+        player->source.x = PERS_WIDTH * player->frame;
+        player->source.y = PERS_HEIGHT * player->direction;
+        player->source.h = PERS_HEIGHT;
+        player->source.w = PERS_WIDTH;
 
         position.x = player->position.x * STEP;
         position.y = player->position.y * STEP;
