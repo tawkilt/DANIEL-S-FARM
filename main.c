@@ -58,6 +58,7 @@ int main(int argc,char *argv[]){
     if(win){
         //Création d'un render un des positions du personnage
         SDL_Renderer *render = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+        SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);
         jouer(render);
         SDL_DestroyRenderer(render);
     }

@@ -23,3 +23,10 @@ bool shop(SDL_Rect const shop, player_t * const player){
     }
     return false;
 }
+
+bool chest(SDL_Rect const chest, player_t * const player){
+    if(player->local == OUTSIDE){
+        return((player->position.x >= chest.x - 6 && player->position.x <= chest.x + 6) && (player->position.y >= chest.y && player->position.y <= chest.y + 4));
+    }
+    return false;
+}

@@ -11,6 +11,10 @@
 /**
 *\fn bool shop(SDL_Rect const shop, player_t * const player)
 */
+/**
+*\fn bool chest(SDL_Rect const chest, player_t * const player)
+*/
 bool shop(SDL_Rect const, player_t * const);
+bool chest(SDL_Rect const, player_t * const);
 
 #endif

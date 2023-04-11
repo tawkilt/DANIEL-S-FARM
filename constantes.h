@@ -31,7 +31,7 @@ enum {GRASS, DIRT};
 enum {OUTSIDE, HOME};
 
 typedef enum tool_s {hoe, scythe, can} tool_t; //Tous les outils
-typedef enum seed_s {cauliflower, melon, potato, pumpkin, tomato} seed_t; //Tous les types de graines/plantes
+typedef enum seed_s {cauliflower = 0, melon, potato, pumpkin, tomato} seed_t; //Tous les types de graines/plantes
 
 /**
 * \struct player_t
@@ -41,7 +41,8 @@ typedef struct player_s{
     SDL_Rect position; //Position du personnage sur la carte
     SDL_Rect source; //Frame à sélectionner
 
-    int inventaire[5];
+    int inventaire[PLANTE];
+    int inventaireVente[PLANTE];
     int money;
     int local;
 

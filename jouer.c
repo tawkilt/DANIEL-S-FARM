@@ -39,7 +39,7 @@ void jouer(SDL_Renderer *render){
     tool_t outilAct = hoe;
     seed_t graineAct = cauliflower;
 
-    SDL_Rect position, backRect, contour, inventory, boite, coin, selection, magasin;
+    SDL_Rect position, backRect, contour, inventory, boite, coin, selection, magasin, move, coffre;
 
     SDL_Surface *sBackground[2];
     SDL_Texture *tBackground[2];
@@ -59,9 +59,13 @@ void jouer(SDL_Renderer *render){
 
     SDL_Surface * sFrameSelect = NULL;
     SDL_Texture * tFrameSelect = NULL;
+    SDL_Surface * sMove = NULL;
+    SDL_Texture * tMove = NULL;
 
     SDL_Surface * sCoin = NULL;
     SDL_Texture * tCoin = NULL;
+    SDL_Surface * sChest = NULL;
+    SDL_Texture * tChest = NULL;
 
     SDL_Surface * sTools[OUTIL];
     SDL_Texture * tTools[OUTIL];
@@ -81,6 +85,9 @@ void jouer(SDL_Renderer *render){
     int i, j, tileActuelle;
     bool inv = false;
     bool achat = false;
+    bool vente = false;
+
+    int debutJeu = SDL_GetTicks();
 
     int walking = SDL_GetTicks();
 
@@ -145,7 +152,15 @@ void jouer(SDL_Renderer *render){
 
     /*-----------------------------*/
 
+    sMove = IMG_Load("sprites/frames/qsdz.png");
+
+    /*-----------------------------*/
+
     sCoin = IMG_Load("sprites/tools/coin.png");
+
+    /*-----------------------------*/
+
+    sChest = IMG_Load("sprites/tools/chest.png");
 
     /*for(j = 0; j < 5; j++){
         if(sPerso[j] == NULL){
@@ -213,12 +228,24 @@ void jouer(SDL_Renderer *render){
     tInv = SDL_CreateTextureFromSurface(render, sInv);
     SDL_FreeSurface(sInv);
     sInv = NULL;
+    
+    /*-----------------------------*/
+
+    tMove = SDL_CreateTextureFromSurface(render, sMove);
+    SDL_FreeSurface(sMove);
+    sMove = NULL;
 
     /*-----------------------------*/
 
     tCoin = SDL_CreateTextureFromSurface(render, sCoin);
     SDL_FreeSurface(sCoin);
     sCoin = NULL;
+
+    /*-----------------------------*/
+
+    tChest = SDL_CreateTextureFromSurface(render, sChest);
+    SDL_FreeSurface(sChest);
+    sChest = NULL;
 
     /*-----------------------------*/
 
@@ -241,11 +268,12 @@ void jouer(SDL_Renderer *render){
     player->position.x = 19;
     player->position.y = 35;
 
-    for(i = 0; i < 5; i++){
+    for(i = 0; i < PLANTE; i++){
         player->inventaire[i] = 0;
+        player->inventaireVente[i] = 0;
     }
 
-    player->money = 20;
+    player->money = 0;
 
     player->jours = 0;
 
@@ -262,6 +290,13 @@ void jouer(SDL_Renderer *render){
     player->vel = false;
 
     /*-----------------------------*/
+
+    move.x = 1050;
+    move.y = 550;
+    move.h = move.w = 150;
+
+    coffre.x = 175;
+    coffre.y = 50;
 
     magasin.x = 200;
     magasin.y = 50;
@@ -350,11 +385,9 @@ void jouer(SDL_Renderer *render){
                         //Action performée
                         case SDLK_e: if(SDL_GetTicks() - player->last_action > player->cooldown){
                             achat = shop(magasin, player);
-                            if(achat);
-                            else{
-                                action(render, player, tiles, plantes);
-                                player->last_action = SDL_GetTicks();
-                            }
+                            vente = chest(coffre, player);
+                            action(render, player, tiles, plantes);
+                            player->last_action = SDL_GetTicks();
                         }; break;
 
                         case SDLK_RIGHT: if(player->holding == SEED){
@@ -429,6 +462,14 @@ void jouer(SDL_Renderer *render){
             }
         }
 
+        if(vente){
+            for(i = 0; i < PLANTE; i++){
+                player->inventaireVente[i] = player->inventaire[i];
+                player->inventaire[i] = 0;
+            }
+            vente = false;
+        }
+
         //Affichage de tous les éléments sur la carte
         if(SDL_RenderCopy(render, tBackground[player->local], NULL, &backRect) != 0){
             SDL_Log("Erreur lors de l'affichage à l'écran");
@@ -499,14 +540,6 @@ void jouer(SDL_Renderer *render){
         player->source.h = PERS_HEIGHT;
         player->source.w = PERS_WIDTH;
 
-        position.x = player->position.x * STEP;
-        position.y = player->position.y * STEP;
-
-
-        if(SDL_RenderCopy(render, persoActuel, &player->source, &position) != 0){
-            SDL_Log("Erreur lors de l'affichage à l'écran");
-        }
-
         if(player->local == OUTSIDE){
             position.x = magasin.x * STEP;
             position.y = magasin.y * STEP;
@@ -514,6 +547,20 @@ void jouer(SDL_Renderer *render){
             if(SDL_RenderCopy(render, tDaniella, NULL, &position) != 0){
                 SDL_Log("Erreur lors de l'affichage à l'écran");
             }
+
+            position.x = coffre.x * STEP;
+            position.y = coffre.y * STEP;
+
+            if(SDL_RenderCopy(render, tChest, NULL, &position) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
+        }
+
+        position.x = player->position.x * STEP;
+        position.y = player->position.y * STEP;
+
+        if(SDL_RenderCopy(render, persoActuel, &player->source, &position) != 0){
+            SDL_Log("Erreur lors de l'affichage à l'écran");
         }
 
         for(i = 0; i < 3; i++){
@@ -592,19 +639,35 @@ void jouer(SDL_Renderer *render){
         boite.y = 20;
         afficheText(render, boite, text, police);
 
+        if(SDL_GetTicks() - debutJeu <= 10000){
+            sprintf(text, "Mouvements");
+
+            boite.x = move.x - 30;
+            boite.y = move.y + 115;
+
+            if(SDL_RenderCopy(render, tMove, NULL, &move) != 0){
+                SDL_Log("Erreur lors de l'affichage à l'écran");
+            }
+
+            afficheText(render, boite, text, police);
+        }
+        else{
+            SDL_DestroyTexture(tMove);
+            tMove = NULL;
+        }
         
         //printf("%s\n", text);
 
         /*printf("Inventaire : [ ");
         for(i = 0; i < 5; i++){
-            printf("%d ", player->inventaire[i]);
+            printf("%d ", player->inventaireVente[i]);
             if(i != 4){
                 printf("| ");
             }
         }
         printf("]\n");*/
 
-        //printf("Positions perso : [%d | %d]\n", player->position.x, player->position.y);
+        //printf("Positions perso : [%d | %d]\n", player->position.x - coffre.x, player->position.y - coffre.y);
 
         SDL_RenderPresent(render);
     }
