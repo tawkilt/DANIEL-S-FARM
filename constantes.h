@@ -42,7 +42,9 @@ typedef struct player_s{
     SDL_Rect source; //Frame à sélectionner
 
     int inventaire[PLANTE];
+    int inventaireGraines[PLANTE];
     int inventaireVente[PLANTE];
+
     int money;
     int local;
 

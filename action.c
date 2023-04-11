@@ -16,76 +16,80 @@
 
 void planter(SDL_Renderer *render, player_t * const player, listeP_t * plantes, tile_t * tile){
 
-    bool existe = false;
+    if(player->inventaireGraines[player->seed] > 0){
+        bool existe = false;
 
-    for(int i = 0; i < plantes->nb_elem; i++){
-        if(verife_position(plantes->plantes[i]->position, tile->position)){
-            existe = true;
-            break;
-        }
-    }
-
-    if(!existe){
-        plante_t * plante = malloc(sizeof(plante_t));
-
-        int i;
-
-        for(i = 0; i < PLANTE; i++){
-            plante->sPlante[i] = NULL;
-            plante->tPlante[i] = NULL;
+        for(int i = 0; i < plantes->nb_elem; i++){
+            if(verife_position(plantes->plantes[i]->position, tile->position)){
+                existe = true;
+                break;
+            }
         }
 
-        plante->state = NEW;
+        if(!existe){
+            plante_t * plante = malloc(sizeof(plante_t));
 
-        //Ajout des sprites dans le tableau de surfaces de la plante, dépendant de quelle plante il s'agit
-        switch(player->seed){
-            case cauliflower:                
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/cauliflower/l1cauliflower.png");                
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/cauliflower/l2cauliflower.png");                
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
-            break;
-            case melon: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/melon/l1melon.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/melon/l2melon.png"); 
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/melon/l3melon.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/melon/melon.png");
-            break;
-            case potato: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/potato/l1potato.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/potato/l2potato.png");
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/potato/l3potato.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/potato/potato.png");
-            break;
-            case pumpkin: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/pumpkin/l1pumpkin.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/pumpkin/l2pumpkin.png");
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/pumpkin/l3pumpkin.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/pumpkin/pumpkin.png");
-            break;
-            case tomato: 
-                plante->sPlante[NEW] = IMG_Load("sprites/seeds/tomato/l1tomato.png");
-                plante->sPlante[SEMI] = IMG_Load("sprites/seeds/tomato/l2tomato.png");
-                plante->sPlante[FULL] = IMG_Load("sprites/seeds/tomato/l3tomato.png");
-                plante->sPlante[PLANT] = IMG_Load("sprites/seeds/tomato/tomato.png");
-            break;
+            int i;
+
+            for(i = 0; i < PLANTE; i++){
+                plante->sPlante[i] = NULL;
+                plante->tPlante[i] = NULL;
+            }
+
+            plante->state = NEW;
+
+            //Ajout des sprites dans le tableau de surfaces de la plante, dépendant de quelle plante il s'agit
+            switch(player->seed){
+                case cauliflower:                
+                    plante->sPlante[NEW] = IMG_Load("sprites/seeds/cauliflower/l1cauliflower.png");                
+                    plante->sPlante[SEMI] = IMG_Load("sprites/seeds/cauliflower/l2cauliflower.png");                
+                    plante->sPlante[FULL] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
+                    plante->sPlante[PLANT] = IMG_Load("sprites/seeds/cauliflower/cauliflower.png");
+                break;
+                case melon: 
+                    plante->sPlante[NEW] = IMG_Load("sprites/seeds/melon/l1melon.png");
+                    plante->sPlante[SEMI] = IMG_Load("sprites/seeds/melon/l2melon.png"); 
+                    plante->sPlante[FULL] = IMG_Load("sprites/seeds/melon/l3melon.png");
+                    plante->sPlante[PLANT] = IMG_Load("sprites/seeds/melon/melon.png");
+                break;
+                case potato: 
+                    plante->sPlante[NEW] = IMG_Load("sprites/seeds/potato/l1potato.png");
+                    plante->sPlante[SEMI] = IMG_Load("sprites/seeds/potato/l2potato.png");
+                    plante->sPlante[FULL] = IMG_Load("sprites/seeds/potato/l3potato.png");
+                    plante->sPlante[PLANT] = IMG_Load("sprites/seeds/potato/potato.png");
+                break;
+                case pumpkin: 
+                    plante->sPlante[NEW] = IMG_Load("sprites/seeds/pumpkin/l1pumpkin.png");
+                    plante->sPlante[SEMI] = IMG_Load("sprites/seeds/pumpkin/l2pumpkin.png");
+                    plante->sPlante[FULL] = IMG_Load("sprites/seeds/pumpkin/l3pumpkin.png");
+                    plante->sPlante[PLANT] = IMG_Load("sprites/seeds/pumpkin/pumpkin.png");
+                break;
+                case tomato: 
+                    plante->sPlante[NEW] = IMG_Load("sprites/seeds/tomato/l1tomato.png");
+                    plante->sPlante[SEMI] = IMG_Load("sprites/seeds/tomato/l2tomato.png");
+                    plante->sPlante[FULL] = IMG_Load("sprites/seeds/tomato/l3tomato.png");
+                    plante->sPlante[PLANT] = IMG_Load("sprites/seeds/tomato/tomato.png");
+                break;
+            }
+
+            plante->sPlante[DEAD] = IMG_Load("sprites/seeds/dead.png");
+
+            //Création des textures et suppression des surfaces
+            for(i = 0; i < PLANTE; i++){
+                plante->tPlante[i] = SDL_CreateTextureFromSurface(render, plante->sPlante[i]);
+                SDL_FreeSurface(plante->sPlante[i]);
+                plante->sPlante[i] = NULL;
+            }
+
+            //Initialisation de la position de la plante sur la carte, de son type et ajout dans la liste des plantes
+            plante->type = player->seed;
+            plante->position = tile->position;
+
+            plantes->plantes[plantes->nb_elem] = plante;
+            plantes->nb_elem++;
+
+            player->inventaireGraines[player->seed]--;
         }
-
-        plante->sPlante[DEAD] = IMG_Load("sprites/seeds/dead.png");
-
-        //Création des textures et suppression des surfaces
-        for(i = 0; i < PLANTE; i++){
-            plante->tPlante[i] = SDL_CreateTextureFromSurface(render, plante->sPlante[i]);
-            SDL_FreeSurface(plante->sPlante[i]);
-            plante->sPlante[i] = NULL;
-        }
-
-        //Initialisation de la position de la plante sur la carte, de son type et ajout dans la liste des plantes
-        plante->type = player->seed;
-        plante->position = tile->position;
-
-        plantes->plantes[plantes->nb_elem] = plante;
-        plantes->nb_elem++;
     }
 }
 

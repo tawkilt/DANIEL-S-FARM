@@ -38,13 +38,14 @@ void jouer(SDL_Renderer *render){
 
     tool_t outilAct = hoe;
     seed_t graineAct = cauliflower;
+    seed_t seedAct = cauliflower;
 
     SDL_Rect position, backRect, contour, inventory, boite, coin, selection, magasin, move, coffre;
 
     SDL_Surface *sBackground[2];
     SDL_Texture *tBackground[2];
-    SDL_Texture *screenAct = NULL;
 
+    SDL_Texture *screenAct = NULL;
     SDL_Texture *persoActuel = NULL;
 
     SDL_Surface * sDaniella = NULL;
@@ -87,7 +88,11 @@ void jouer(SDL_Renderer *render){
     bool achat = false;
     bool vente = false;
 
+    bool affiche = true;
+
     int debutJeu = SDL_GetTicks();
+    
+    int clignote = SDL_GetTicks();
 
     int walking = SDL_GetTicks();
 
@@ -271,6 +276,7 @@ void jouer(SDL_Renderer *render){
     for(i = 0; i < PLANTE; i++){
         player->inventaire[i] = 0;
         player->inventaireVente[i] = 0;
+        player->inventaireGraines[i] = 0;
     }
 
     player->money = 0;
@@ -374,7 +380,14 @@ void jouer(SDL_Renderer *render){
                 case SDL_KEYDOWN:
                     switch(event.key.keysym.sym){
                         //Fermeture du jeu
-                        case SDLK_ESCAPE: is_running = false; break;
+                        case SDLK_ESCAPE: 
+                            if(achat){
+                                achat = false;
+                            }
+                            else{
+                                is_running = false;
+                            };
+                        break;
 
                         //Déplacement du personnage
                         case SDLK_z: player->direction = HAUT; player->vel = true; /*deplacerPers(player);*/ break;
@@ -383,30 +396,61 @@ void jouer(SDL_Renderer *render){
                         case SDLK_d: player->direction = DROITE; player->vel = true; /*deplacerPers(player);*/ break;
 
                         //Action performée
-                        case SDLK_e: if(SDL_GetTicks() - player->last_action > player->cooldown){
-                            achat = shop(magasin, player);
-                            vente = chest(coffre, player);
-                            action(render, player, tiles, plantes);
-                            player->last_action = SDL_GetTicks();
-                        }; break;
+                        case SDLK_e: 
+                            if(SDL_GetTicks() - player->last_action >= player->cooldown){
+                                if(!achat){
+                                    achat = shop(magasin, player);
+                                }
+                                else{
+                                    player->inventaireGraines[seedAct]++;
+                                }
+                                vente = chest(coffre, player);
+                                action(render, player, tiles, plantes);
+                                player->last_action = SDL_GetTicks();
+                            }; 
+                        break;
 
-                        case SDLK_RIGHT: if(player->holding == SEED){
-                            player->holding = NOTHING;
-                            contour.x = frames[NOTHING].x;
-                        }
-                        else{
-                            player->holding++;
-                            contour.x += 58;
-                        }; break;
+                        case SDLK_RIGHT: 
+                            if(!achat){
+                                if(player->holding == SEED){
+                                    player->holding = NOTHING;
+                                    contour.x = frames[NOTHING].x;
+                                }
+                                else{
+                                    player->holding++;
+                                    contour.x += 58;
+                                }
+                            }
+                            else{
+                                if(seedAct == tomato){
+                                    seedAct = cauliflower;
+                                }
+                                else{
+                                    seedAct++;
+                                }
+                            };
+                        break;
 
-                        case SDLK_LEFT: if(player->holding == NOTHING){
-                            player->holding = SEED;
-                            contour.x = frames[SEED].x;
-                        }
-                        else{
-                            player->holding--;
-                            contour.x -= 58;
-                        }; break;
+                        case SDLK_LEFT: 
+                            if(!achat){
+                                if(player->holding == NOTHING){
+                                    player->holding = SEED;
+                                    contour.x = frames[SEED].x;
+                                }
+                                else{
+                                    player->holding--;
+                                    contour.x -= 58;
+                                }
+                            }
+                            else{
+                                if(seedAct == cauliflower){
+                                    seedAct = tomato;
+                                }
+                                else{
+                                    seedAct--;
+                                }
+                            };
+                        break;
                         
                         case SDLK_UP: changer_outil(player, HAUT, &outilAct, &graineAct); break;
 
@@ -628,7 +672,24 @@ void jouer(SDL_Renderer *render){
             }
 
             for(i = 0; i < PLANTE; i++){
-                if(SDL_RenderCopy(render, tSeeds[i], NULL, &invent[i]) != 0){
+                if(i != seedAct){
+                    if(SDL_RenderCopy(render, tSeeds[i], NULL, &invent[i]) != 0){
+                        SDL_Log("Erreur lors de l'affichage à l'écran");
+                    }
+                }
+            }
+
+            if(SDL_GetTicks() - clignote >= ANIM && !affiche){
+                affiche = true;
+                clignote = SDL_GetTicks();
+            }
+            else if(SDL_GetTicks() - clignote >= ANIM && affiche){
+                affiche = false;
+                clignote = SDL_GetTicks();
+            }
+
+            if(affiche){
+                if(SDL_RenderCopy(render, tSeeds[seedAct], NULL, &invent[seedAct]) != 0){
                     SDL_Log("Erreur lors de l'affichage à l'écran");
                 }
             }
@@ -658,16 +719,17 @@ void jouer(SDL_Renderer *render){
         
         //printf("%s\n", text);
 
-        /*printf("Inventaire : [ ");
+        printf("Inventaire : [ ");
         for(i = 0; i < 5; i++){
-            printf("%d ", player->inventaireVente[i]);
+            printf("%d ", player->inventaireGraines[i]);
             if(i != 4){
                 printf("| ");
             }
         }
-        printf("]\n");*/
+        printf("]\n");
 
         //printf("Positions perso : [%d | %d]\n", player->position.x - coffre.x, player->position.y - coffre.y);
+        //printf("%d\n", SDL_GetTicks() - clignote);
 
         SDL_RenderPresent(render);
     }
