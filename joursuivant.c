@@ -49,7 +49,7 @@ void jour_suivant(SDL_Renderer * render, player_t * player, listeP_t * plantes, 
         tempP = plantes->plantes[i];
 
         if(tempP->state != DEAD){
-            if(tempP->state == FULL){
+            if(tempP->state == FULL && !tempP->arrose){
                 tempP->state = DEAD;
             }
             else{
